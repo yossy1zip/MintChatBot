@@ -1,0 +1,27 @@
+name: ${project.name}
+main: ${project.groupId}.chatbot.ChatBot
+version: ${project.version}
+author: ucchy
+description: ${project.description}
+
+commands:
+  chatbot:
+    description: chatbotのコマンド
+    aliases: [cb, bot]
+    usage: |
+           /<command> reload - 設定をリロードします。
+    permission: chatbot.command
+    permission-message: パーミッション "<permission>" が無いため実行できません。
+
+permissions:
+  chatbot.command:
+    description: chatbot コマンドの使用権限
+    default: op
+  chatbot.reload:
+    description: chatbot reload コマンドの使用権限
+    default: op
+  chatbot.*:
+    children:
+      chatbot.command: true
+      chatbot.reload: true
+    description: chatbot の使用権限全て

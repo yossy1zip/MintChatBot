@@ -1,0 +1,22 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2014
+
+# Botの名前
+botName: 'ミントちゃん'
+
+# レスポンスのフォーマット
+responceFormat: '<&e%botName&f> %responce'
+
+# URLを含んだチャット発言がされたときに、URLの内容を取得するかどうか
+getURLTitle: true
+
+# URLのタイトルを取得したときの応答内容
+getURLTitleSuccess: '%playerさんの貼ったURLは、「%title」というタイトルです。'
+
+# URLのタイトルが取得できなかったときの応答内容
+getURLTitleFail: '%playerさんの貼ったURLは、タイトルが取得できませんでした…'
+
+# URLが接続できなかったときの応答内容
+getURLTitleNotFound: '%playerさんの貼ったURLは、接続できませんでした…'
