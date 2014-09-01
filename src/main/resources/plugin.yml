@@ -17,11 +17,11 @@ permissions:
   chatbot.command:
     description: chatbot コマンドの使用権限
     default: op
-  chatbot.reload:
-    description: chatbot reload コマンドの使用権限
-    default: op
-  chatbot.*:
-    children:
-      chatbot.command: true
-      chatbot.reload: true
-    description: chatbot の使用権限全て
+#  chatbot.reload:
+#    description: chatbot reload コマンドの使用権限
+#    default: op
+#  chatbot.*:
+#    children:
+#      chatbot.command: true
+#      chatbot.reload: true
+#    description: chatbot の使用権限全て

@@ -55,7 +55,7 @@ public class ChatBotConfig {
                 "<&e%botName&f> %responce");
         getURLTitle = config.getBoolean("getURLTitle", true);
         getURLTitleSuccess = config.getString("getURLTitleSuccess",
-                "%playerさんの貼ったURLは、%titleというタイトルです。");
+                "%playerさんの貼ったURLは、\"%title\"というタイトルです。");
         getURLTitleFail = config.getString("getURLTitleFail",
                 "%playerさんの貼ったURLは、タイトルが取得できませんでした…");
         getURLTitleNotFound = config.getString("getURLTitleNotFound",

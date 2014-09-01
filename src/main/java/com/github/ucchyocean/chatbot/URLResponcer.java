@@ -252,6 +252,7 @@ public class URLResponcer extends BukkitRunnable {
                 "https://twitter.com",
                 "https://www.jpcert.or.jp/at/2014/at140002.html",
                 "https://bukkitwiki.jp/Developer/%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E9%9B%86",
+                "http://test.google.co.jp", // not found url
         };
 
         URLResponcer resp = new URLResponcer(null, null, null, null, null);
