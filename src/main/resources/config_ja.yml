@@ -13,7 +13,7 @@ responceFormat: '<&e%botName&f> %responce'
 getURLTitle: true
 
 # URLのタイトルを取得したときの応答内容
-getURLTitleSuccess: '%playerさんの貼ったURLは、「%title」というタイトルです。'
+getURLTitleSuccess: '%playerさんの貼ったURLは、"%title"というタイトルです。'
 
 # URLのタイトルが取得できなかったときの応答内容
 getURLTitleFail: '%playerさんの貼ったURLは、タイトルが取得できませんでした…'

@@ -97,7 +97,9 @@ public class URLResponcer extends BukkitRunnable {
         }
 
         responce = responce.replace("%player", playerName);
-        responce = responce.replace("%title", title);
+        if ( title != null ) {
+            responce = responce.replace("%title", title);
+        }
         return responce;
     }
 
