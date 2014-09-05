@@ -79,6 +79,7 @@ public class ChatBot extends JavaPlugin implements Listener {
             String temp = config.getResponceFormat();
             temp = temp.replace("%botName", config.getBotName());
             temp = temp.replace("%responce", responce);
+            temp = temp.replace("\\n", "\n");
             final String res = Utility.replaceColorCode(temp);
 
             // 3tick遅らせて送信する
