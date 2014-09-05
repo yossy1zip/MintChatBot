@@ -111,8 +111,9 @@ public class ResponceData {
 
         for ( String c : contents ) {
 
-            String key = c.split(":")[0].trim();
-            String value = c.split(":")[1].trim();
+            int index = c.indexOf(":"); // 必ずコロンは存在するので -1にはならない
+            String key = c.substring(0, index-1).trim();
+            String value = c.substring(index + 1).trim();
             datas.put(key, value);
         }
 
