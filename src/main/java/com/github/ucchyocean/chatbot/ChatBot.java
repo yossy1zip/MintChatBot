@@ -27,6 +27,8 @@ public class ChatBot extends JavaPlugin implements Listener {
     private static ChatBot instance;
     private ChatBotConfig config;
     private ResponceData responceData;
+    private TimeSignalData timeSignalData;
+    private TimerTask timer;
 
     /**
      * プラグインが有効になったときに呼び出されるメソッドです。
@@ -42,6 +44,10 @@ public class ChatBot extends JavaPlugin implements Listener {
 
         // リスナーの登録
         getServer().getPluginManager().registerEvents(this, this);
+
+        // タイマーの起動
+        timer = new TimerTask(config, timeSignalData);
+        timer.runTaskTimerAsynchronously(this, 100, 100);
     }
 
     /**
@@ -140,9 +146,24 @@ public class ChatBot extends JavaPlugin implements Listener {
     public void reloadAllData() {
 
         // コンフィグのロード
-        config = new ChatBotConfig(getFile(), getDataFolder());
+        if ( config == null ) {
+            config = new ChatBotConfig(getFile(), getDataFolder());
+        } else {
+            config.reloadConfig();
+        }
 
         // レスポンスデータのロード
-        responceData = new ResponceData(getFile(), getDataFolder());
+        if ( responceData == null ) {
+            responceData = new ResponceData(getFile(), getDataFolder());
+        } else {
+            responceData.reloadData();
+        }
+
+        // 時報データのロード
+        if ( timeSignalData == null ) {
+            timeSignalData = new TimeSignalData(getFile(), getDataFolder());
+        } else {
+            timeSignalData.reloadData();
+        }
     }
 }

@@ -5,12 +5,8 @@
  */
 package com.github.ucchyocean.chatbot;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -37,7 +33,7 @@ public class ResponceData {
     private Pattern patternRandomGroup;
 
     private File jarFile;
-    private File dataFolder;
+    private File file;
 
     /**
      * コンストラクタ
@@ -47,77 +43,20 @@ public class ResponceData {
     public ResponceData(File jarFile, File dataFolder) {
 
         this.jarFile = jarFile;
-        this.dataFolder = dataFolder;
 
         time_format = new SimpleDateFormat(RESPONCE_TIME);
         date_format = new SimpleDateFormat(RESPONCE_DATE, Locale.JAPAN);
         patternRandomGroup = Pattern.compile(".*\\(([^\\)]*)\\).*");
 
+        file = new File(dataFolder, FILE_NAME);
         reloadData();
     }
 
-    public void reloadData() {
-
-        if ( !dataFolder.exists() ) {
-            dataFolder.mkdirs();
-        }
-
-        File file = new File(dataFolder, FILE_NAME);
-        if ( !file.exists() ) {
-            // 新しいファイルをコピーする
-            Utility.copyFileFromJar(jarFile, file, FILE_NAME);
-        }
-
-        data = load(file);
-    }
-
     /**
-     * responce.txt を読み込む
-     * @param file 読み込むファイル
-     * @return 読み込み結果
+     * 設定ファイルをリロードする
      */
-    private static HashMap<String, String> load(File file) {
-
-        // ファイルの内容を読み出す
-        ArrayList<String> contents = new ArrayList<String>();
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            String line;
-            while ( (line = reader.readLine()) != null ) {
-
-                line = line.trim();
-
-                // 頭にシャープが付いている行は、コメントとして読み飛ばす
-                // コロンが含まれない行は、データ無しとして読み飛ばす
-                if ( !line.startsWith("#") && line.contains(":") ) {
-                    contents.add(line);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if ( reader != null ) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
-        }
-
-        // 内容の解析
-        HashMap<String, String> datas = new HashMap<String, String>();
-
-        for ( String c : contents ) {
-
-            int index = c.indexOf(":"); // 必ずコロンは存在するので -1にはならない
-            String key = c.substring(0, index).trim();
-            String value = c.substring(index + 1).trim();
-            datas.put(key, value);
-        }
-
-        return datas;
+    public void reloadData() {
+        data = Utility.loadConfigFile(jarFile, file);
     }
 
     /**

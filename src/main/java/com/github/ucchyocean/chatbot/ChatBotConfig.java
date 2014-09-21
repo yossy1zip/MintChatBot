@@ -43,6 +43,10 @@ public class ChatBotConfig {
      */
     public void reloadConfig() {
 
+        if ( !dataFolder.exists() ) {
+            dataFolder.mkdirs();
+        }
+
         File configFile = new File(dataFolder, "config.yml");
         if ( !configFile.exists() ) {
             Utility.copyFileFromJar(jarFile, configFile, "config_ja.yml");

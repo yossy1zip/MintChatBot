@@ -10,11 +10,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -25,6 +27,66 @@ import org.bukkit.ChatColor;
  * ユーティリティクラス
  */
 public class Utility {
+
+    /**
+     * 設定ファイルを読み込む
+     * @param file 読み込むファイル
+     * @return 読み込み結果
+     */
+    public static HashMap<String, String> loadConfigFile(File jarFile, File file) {
+
+        // 親フォルダの存在を確認し、無いなら作る
+        File parent = file.getParentFile();
+        if ( !parent.exists() ) {
+            parent.mkdirs();
+        }
+
+        // 設定ファイルの存在を確認し、無いなら同名ファイルをjarから取り出す
+        if ( !file.exists() ) {
+            Utility.copyFileFromJar(jarFile, file, file.getName());
+        }
+
+        // ファイルの内容を読み出す
+        ArrayList<String> contents = new ArrayList<String>();
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            String line;
+            while ( (line = reader.readLine()) != null ) {
+
+                line = line.trim();
+
+                // 頭にシャープが付いている行は、コメントとして読み飛ばす
+                // コロンが含まれない行は、データ無しとして読み飛ばす
+                if ( !line.startsWith("#") && line.contains(":") ) {
+                    contents.add(line);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if ( reader != null ) {
+                try {
+                    reader.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
+        }
+
+        // 内容の解析
+        HashMap<String, String> datas = new HashMap<String, String>();
+
+        for ( String c : contents ) {
+
+            int index = c.indexOf(":"); // 必ずコロンは存在するので -1にはならない
+            String key = c.substring(0, index).trim();
+            String value = c.substring(index + 1).trim();
+            datas.put(key, value);
+        }
+
+        return datas;
+    }
 
     /**
      * jarファイルの中に格納されているテキストファイルを、jarファイルの外にコピーするメソッド<br/>
