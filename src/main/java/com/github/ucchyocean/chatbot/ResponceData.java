@@ -66,14 +66,15 @@ public class ResponceData {
      * @param player チャット発言者
      * @return 応答内容
      */
-    public String getResponceIfMatch(String source, Player player) {
+    public String getResponceIfMatch(String source, Player player,
+            VaultChatBridge vaultchat) {
 
         for ( String key : data.keySet() ) {
 
             if ( source.matches(key) ) {
 
                 String responce = data.get(key);
-                responce = replaceKeywords(responce, player);
+                responce = replaceKeywords(responce, player, vaultchat);
                 responce = replaceMatchingGroups(responce, key, source);
                 responce = replaceRandomGroup(responce);
                 return responce;
@@ -89,7 +90,8 @@ public class ResponceData {
      * @param player プレイヤー、不要ならnullで良い。
      * @return キーワード置き換え済みの文字列
      */
-    private String replaceKeywords(String source, Player player) {
+    private String replaceKeywords(String source, Player player,
+            VaultChatBridge vaultchat) {
 
         String responce = source;
 
@@ -99,6 +101,22 @@ public class ResponceData {
                 name = player.getDisplayName() + ChatColor.RESET;
             }
             responce = responce.replace("%player", name);
+        }
+
+        if ( responce.contains("%prefix") ) {
+            String prefix = "";
+            if ( vaultchat != null && player != null ) {
+                prefix = vaultchat.getPlayerPrefix(player);
+            }
+            responce = responce.replace("%prefix", prefix);
+        }
+
+        if ( responce.contains("%suffix") ) {
+            String suffix = "";
+            if ( vaultchat != null && player != null ) {
+                suffix = vaultchat.getPlayerPrefix(player);
+            }
+            responce = responce.replace("%suffix", suffix);
         }
 
         if ( responce.contains("%time") ) {
@@ -182,7 +200,7 @@ public class ResponceData {
 
         for ( String testee : testees ) {
             System.out.println(String.format("testee={%s}, responce={%s}",
-                    testee, test.getResponceIfMatch(testee, null)));
+                    testee, test.getResponceIfMatch(testee, null, null)));
         }
     }
 

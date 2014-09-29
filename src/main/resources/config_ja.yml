@@ -20,3 +20,11 @@ getURLTitleFail: '%playerさんの貼ったURLは、タイトルが取得でき�
 
 # URLが接続できなかったときの応答内容
 getURLTitleNotFound: '%playerさんの貼ったURLは、接続できませんでした…'
+
+# プレイヤーがサーバーに参加したときの応答内容。
+# 空文字列を設定すると（joinResponce: ''）、応答を無効化できます。
+joinResponce: '%playerさんいらっしゃいませ！'
+
+# プレイヤーがサーバーに初参加したときの応答内容。
+# 空文字列を設定すると（firstJoinResponce: ''）、応答を無効化できます。
+firstJoinResponce: '&f%playerさんが&cサーバーに初参加&fです！\nようこそいらっしゃいませ！！'

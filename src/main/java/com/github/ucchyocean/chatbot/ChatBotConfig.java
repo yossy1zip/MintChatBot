@@ -21,6 +21,8 @@ public class ChatBotConfig {
     private String getURLTitleSuccess;
     private String getURLTitleFail;
     private String getURLTitleNotFound;
+    private String joinResponce;
+    private String firstJoinResponce;
 
     private File jarFile;
     private File dataFolder;
@@ -58,12 +60,11 @@ public class ChatBotConfig {
         responceFormat = config.getString("responceFormat",
                 "<&e%botName&f> %responce");
         getURLTitle = config.getBoolean("getURLTitle", true);
-        getURLTitleSuccess = config.getString("getURLTitleSuccess",
-                "%playerさんの貼ったURLは、\"%title\"というタイトルです。");
-        getURLTitleFail = config.getString("getURLTitleFail",
-                "%playerさんの貼ったURLは、タイトルが取得できませんでした…");
-        getURLTitleNotFound = config.getString("getURLTitleNotFound",
-                "%playerさんの貼ったURLは、接続できませんでした…");
+        getURLTitleSuccess = config.getString("getURLTitleSuccess");
+        getURLTitleFail = config.getString("getURLTitleFail");
+        getURLTitleNotFound = config.getString("getURLTitleNotFound");
+        joinResponce = config.getString("joinResponce");
+        firstJoinResponce = config.getString("firstJoinResponce");
     }
 
     /**
@@ -112,5 +113,21 @@ public class ChatBotConfig {
      */
     public String getGetURLTitleNotFound() {
         return getURLTitleNotFound;
+    }
+
+    /**
+     * サーバー参加レスポンス
+     * @return
+     */
+    public String getJoinResponce() {
+        return joinResponce;
+    }
+
+    /**
+     * サーバー初参加レスポンス
+     * @return
+     */
+    public String getFirstJoinResponce() {
+        return firstJoinResponce;
     }
 }

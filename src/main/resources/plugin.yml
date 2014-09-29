@@ -3,6 +3,7 @@ main: ${project.groupId}.chatbot.ChatBot
 version: ${project.version}
 author: ucchy
 description: ${project.description}
+softdepend: [Vault]
 
 commands:
   chatbot:

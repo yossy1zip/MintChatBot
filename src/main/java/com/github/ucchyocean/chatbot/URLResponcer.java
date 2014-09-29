@@ -26,40 +26,33 @@ public class URLResponcer extends BukkitRunnable {
     private static final String REGEX_URL = ".*(https?://[\\w/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+).*";
     private static final String REGEX_TITLE = ".*<title>([^<]*)</title>.*";
     private static final String REGEX_CHARSET = ".*charset=\"?([^\"]*)\".*";
+    private static Pattern urlPattern;
+    private static Pattern titlePattern;
+    private static Pattern charsetPattern;
+
+    static {
+        urlPattern = Pattern.compile(REGEX_URL);
+        titlePattern = Pattern.compile(REGEX_TITLE, Pattern.CASE_INSENSITIVE);
+        charsetPattern = Pattern.compile(REGEX_CHARSET, Pattern.CASE_INSENSITIVE);
+    }
 
     private String source;
     private Player player;
-    private String responceSuccessFormat;
-    private String responceFailFormat;
-    private String responceNotFoundFormat;
-    private Pattern urlPattern;
-    private Pattern titlePattern;
-    private Pattern charsetPattern;
+    private ChatBotConfig config;
+    private VaultChatBridge vaultchat;
 
     /**
      * コンストラクタ
      * @param source
      * @param player
-     * @param responceSuccessFormat
-     * @param responceFailFormat
-     * @param responceNotFoundFormat
+     * @param config
      */
-    public URLResponcer(
-            String source,
-            Player player,
-            String responceSuccessFormat,
-            String responceFailFormat,
-            String responceNotFoundFormat) {
-
+    public URLResponcer(String source, Player player, ChatBotConfig config,
+            VaultChatBridge vaultchat) {
         this.source = source;
         this.player = player;
-        this.responceSuccessFormat = responceSuccessFormat;
-        this.responceFailFormat = responceFailFormat;
-        this.responceNotFoundFormat = responceNotFoundFormat;
-
-        urlPattern = Pattern.compile(REGEX_URL);
-        titlePattern = Pattern.compile(REGEX_TITLE, Pattern.CASE_INSENSITIVE);
-        charsetPattern = Pattern.compile(REGEX_CHARSET, Pattern.CASE_INSENSITIVE);
+        this.config = config;
+        this.vaultchat = vaultchat;
     }
 
     /**
@@ -72,7 +65,7 @@ public class URLResponcer extends BukkitRunnable {
     }
 
     /**
-     * レスポンスを行う
+     * レスポンスを取得する
      * @return
      */
     public String responce() {
@@ -89,18 +82,37 @@ public class URLResponcer extends BukkitRunnable {
 
         String responce;
         if ( title == null ) {
-            responce = new String(responceNotFoundFormat);
+            responce = config.getGetURLTitleNotFound();
+            if ( responce == null || responce.equals("") ) {
+                return null;
+            }
         } else if ( title.equals("") ) {
-            responce = new String(responceFailFormat);
+            responce = config.getGetURLTitleFail();
+            if ( responce == null || responce.equals("") ) {
+                return null;
+            }
         } else {
-            responce = new String(responceSuccessFormat);
+            responce = config.getGetURLTitleSuccess();
+            if ( responce == null || responce.equals("") ) {
+                return null;
+            }
         }
 
+        String temp = config.getResponceFormat();
+        String base = temp.replace("%botName", config.getBotName());
+        responce = base.replace("%responce", responce);
         responce = responce.replace("%player", playerName);
         if ( title != null ) {
             responce = responce.replace("%title", title);
         }
-        return responce;
+        if ( vaultchat != null ) {
+            responce = responce.replace("%prefix", vaultchat.getPlayerPrefix(player));
+            responce = responce.replace("%suffix", vaultchat.getPlayerSuffix(player));
+        } else {
+            responce = responce.replace("%prefix", "");
+            responce = responce.replace("%suffix", "");
+        }
+        return Utility.replaceColorCode(responce);
     }
 
     /**
@@ -251,11 +263,10 @@ public class URLResponcer extends BukkitRunnable {
                 "http://my-cra.mydns.jp/rule.html",
                 "https://twitter.com",
                 "https://www.jpcert.or.jp/at/2014/at140002.html",
-                "https://bukkitwiki.jp/Developer/%E3%82%B5%E3%83%B3%E3%83%97%E3%83%AB%E9%9B%86",
                 "http://test.google.co.jp", // not found url
         };
 
-        URLResponcer resp = new URLResponcer(null, null, null, null, null);
+        URLResponcer resp = new URLResponcer(null, null, null, null);
 
         for ( String t : testees ) {
             System.out.println( resp.getURLTitle(t) );

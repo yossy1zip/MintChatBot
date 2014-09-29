@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -30,6 +31,8 @@ public class ChatBot extends JavaPlugin implements Listener {
     private TimeSignalData timeSignalData;
     private TimerTask timer;
 
+    private VaultChatBridge vaultchat;
+
     /**
      * プラグインが有効になったときに呼び出されるメソッドです。
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
@@ -41,6 +44,12 @@ public class ChatBot extends JavaPlugin implements Listener {
 
         // 設定のリロード
         reloadAllData();
+
+        // VaultChatをロード
+        if ( getServer().getPluginManager().isPluginEnabled("Vault") ) {
+            vaultchat = VaultChatBridge.load(
+                    getServer().getPluginManager().getPlugin("Vault"));
+        }
 
         // リスナーの登録
         getServer().getPluginManager().registerEvents(this, this);
@@ -78,7 +87,7 @@ public class ChatBot extends JavaPlugin implements Listener {
         Player player = event.getPlayer();
 
         // レスポンスデータに一致があるなら、レスポンスを返す
-        String responce = responceData.getResponceIfMatch(message, player);
+        String responce = responceData.getResponceIfMatch(message, player, vaultchat);
 
         if ( responce != null ) {
 
@@ -101,22 +110,55 @@ public class ChatBot extends JavaPlugin implements Listener {
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            String temp = config.getResponceFormat();
-            String base = temp.replace("%botName", config.getBotName());
-
-
-            String sf = Utility.replaceColorCode(base.replace(
-                    "%responce", config.getGetURLTitleSuccess()));
-            String ff = Utility.replaceColorCode(base.replace(
-                    "%responce", config.getGetURLTitleFail()));
-            String nf = Utility.replaceColorCode(base.replace(
-                    "%responce", config.getGetURLTitleNotFound()));
-
-            URLResponcer resp = new URLResponcer(message, player, sf, ff, nf);
+            URLResponcer resp = new URLResponcer(message, player, config, vaultchat);
             resp.runTaskAsynchronously(this);
 
             return;
         }
+    }
+
+    /**
+     * プレイヤーがサーバーに参加したときに呼び出されるメソッドです。
+     * @param event
+     */
+    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    public void onServerJoin(PlayerJoinEvent event) {
+
+        Player player = event.getPlayer();
+
+        String responce;
+
+        // レスポンスを取得
+        if ( !player.hasPlayedBefore() ) {
+            responce = config.getFirstJoinResponce();
+        } else {
+            responce = config.getJoinResponce();
+        }
+
+        if ( responce == null || responce.equals("") ) {
+            return;
+        }
+
+        String temp = config.getResponceFormat();
+        String base = temp.replace("%botName", config.getBotName());
+        responce = base.replace("%responce", responce);
+        responce = responce.replace("%player", player.getName());
+        if ( vaultchat != null ) {
+            responce = responce.replace("%prefix", vaultchat.getPlayerPrefix(player));
+            responce = responce.replace("%suffix", vaultchat.getPlayerSuffix(player));
+        } else {
+            responce = responce.replace("%prefix", "");
+            responce = responce.replace("%suffix", "");
+        }
+        responce = responce.replace("\\n", "\n");
+        final String res = Utility.replaceColorCode(responce);
+
+        // 3tick遅らせて送信する
+        new BukkitRunnable() {
+            public void run() {
+                Bukkit.broadcastMessage(res);
+            }
+        }.runTaskLater(this, 3);
     }
 
     /**
@@ -138,6 +180,13 @@ public class ChatBot extends JavaPlugin implements Listener {
      */
     public ChatBotConfig getCBConfig() {
         return config;
+    }
+
+    /**
+     * @return VaultChatブリッジ
+     */
+    public VaultChatBridge getVaultChat() {
+        return vaultchat;
     }
 
     /**
