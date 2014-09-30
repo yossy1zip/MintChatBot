@@ -114,7 +114,7 @@ public class ResponceData {
         if ( responce.contains("%suffix") ) {
             String suffix = "";
             if ( vaultchat != null && player != null ) {
-                suffix = vaultchat.getPlayerPrefix(player);
+                suffix = vaultchat.getPlayerSuffix(player);
             }
             responce = responce.replace("%suffix", suffix);
         }
