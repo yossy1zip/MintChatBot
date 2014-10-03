@@ -68,7 +68,7 @@ public class URLResponcer extends BukkitRunnable {
      * レスポンスを取得する
      * @return
      */
-    public String responce() {
+    protected String getResponce() {
 
         Matcher matcher = urlPattern.matcher(source);
 
@@ -98,9 +98,6 @@ public class URLResponcer extends BukkitRunnable {
             }
         }
 
-        String temp = config.getResponceFormat();
-        String base = temp.replace("%botName", config.getBotName());
-        responce = base.replace("%responce", responce);
         responce = responce.replace("%player", playerName);
         if ( title != null ) {
             responce = responce.replace("%title", title);
@@ -120,7 +117,7 @@ public class URLResponcer extends BukkitRunnable {
      * @param urlStr URL
      * @return タイトル
      */
-    private String getURLTitle(String urlStr) {
+    protected String getURLTitle(String urlStr) {
 
         HttpURLConnection connection = null;
         BufferedReader reader = null;
@@ -250,9 +247,13 @@ public class URLResponcer extends BukkitRunnable {
     @Override
     public void run() {
 
-        String responce = responce();
+        String responce = getResponce();
         if ( responce != null ) {
-            Bukkit.broadcastMessage(responce);
+
+            String base = config.getResponceFormat();
+            base = base.replace("%botName", config.getBotName());
+            base = base.replace("%responce", responce);
+            Bukkit.broadcastMessage(Utility.replaceColorCode(base));
         }
     }
 

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.ucchyocean</groupId>
   <artifactId>BukkitChatBot</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>Chat Bot system for CraftBukkit</description>
 
   <licenses>
@@ -88,6 +88,11 @@
       <name>Vault Repository</name>
       <url>http://nexus.theyeticave.net/content/repositories/pub_releases</url>
     </repository>
+    <repository>
+      <id>ucchy-github</id>
+      <name>ucchy github repository</name>
+      <url>https://raw.github.com/ucchyocean/mvn-repo/master</url>
+    </repository>
   </repositories>
 
   <dependencies>
@@ -100,6 +105,11 @@
       <groupId>net.milkbowl.vault</groupId>
       <artifactId>Vault</artifactId>
       <version>1.4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.github.ucchyocean</groupId>
+      <artifactId>LunaChat</artifactId>
+      <version>2.6.9</version>
     </dependency>
   </dependencies>
 </project>
