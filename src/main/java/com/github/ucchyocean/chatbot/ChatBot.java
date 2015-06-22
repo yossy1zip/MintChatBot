@@ -47,8 +47,7 @@ public class ChatBot extends JavaPlugin implements Listener {
 
         // VaultChatをロード
         if ( getServer().getPluginManager().isPluginEnabled("Vault") ) {
-            vaultchat = VaultChatBridge.load(
-                    getServer().getPluginManager().getPlugin("Vault"));
+            vaultchat = VaultChatBridge.load();
         }
 
         // LunaChatがロードされているなら、専用リスナーを登録する
@@ -170,7 +169,7 @@ public class ChatBot extends JavaPlugin implements Listener {
     /**
      * @return チャットBOTプラグインのインスタンス
      */
-    protected static ChatBot getInstance() {
+    public static ChatBot getInstance() {
         return instance;
     }
 

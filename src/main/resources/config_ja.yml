@@ -3,6 +3,8 @@
 # @license    LGPLv3
 # @copyright  Copyright ucchy 2014
 
+# -------------------- 一般設定 --------------------
+
 # Botの名前
 botName: 'ミントちゃん'
 
@@ -12,15 +14,6 @@ responceFormat: '<&e%botName&f> %responce'
 # URLを含んだチャット発言がされたときに、URLの内容を取得するかどうか
 getURLTitle: true
 
-# URLのタイトルを取得したときの応答内容
-getURLTitleSuccess: '%playerさんの貼ったURLは、"%title"というタイトルです。'
-
-# URLのタイトルが取得できなかったときの応答内容
-getURLTitleFail: '%playerさんの貼ったURLは、タイトルが取得できませんでした…'
-
-# URLが接続できなかったときの応答内容
-getURLTitleNotFound: '%playerさんの貼ったURLは、接続できませんでした…'
-
 # プレイヤーがサーバーに参加したときの応答内容。
 # 空文字列を設定すると（joinResponce: ''）、応答を無効化できます。
 joinResponce: '%playerさんいらっしゃいませ！'
@@ -28,3 +21,37 @@ joinResponce: '%playerさんいらっしゃいませ！'
 # プレイヤーがサーバーに初参加したときの応答内容。
 # 空文字列を設定すると（firstJoinResponce: ''）、応答を無効化できます。
 firstJoinResponce: '&f%playerさんが&cサーバーに初参加&fです！\nようこそいらっしゃいませ！！'
+
+# URLのタイトルを取得したときの応答内容。空文字列を設定すると、応答を無効化できます。
+getURLTitleSuccess: '%playerさんの貼ったURLは、"%title"というタイトルです。'
+
+# URLのタイトルが取得できなかったときの応答内容。空文字列を設定すると、応答を無効化できます。
+getURLTitleFail: '%playerさんの貼ったURLは、タイトルが取得できませんでした…'
+
+# URLが接続できなかったときの応答内容。空文字列を設定すると、応答を無効化できます。
+getURLTitleNotFound: '%playerさんの貼ったURLは、接続できませんでした…'
+
+
+# -------------------- IRC連携設定 --------------------
+irc:
+  # IRC連携を利用するかどうか
+  enabled: false
+
+  # 接続先のIRCサーバー
+  serverHostname: 'irc.friend-chat.jp'
+
+  # 接続先のIRCサーバーのパスワード。不要なら空にしてください。
+  serverPassword: ''
+
+  # 接続先のIRCサーバーのポート番号
+  serverPort: 6665
+
+  # BOTのニックネーム
+  nickname: 'MintChan'
+
+  # BOTのニックネームのパスワード。不要なら空にしてください。
+  nickservPassword: ''
+
+  # 接続先のIRCサーバーの文字コード。
+  # 日本のIRCサーバーは、'ISO-2022-JP'(JIS) がよく使われています。
+  encoding: 'ISO-2022-JP'

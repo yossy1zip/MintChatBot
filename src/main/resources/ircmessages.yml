@@ -1,0 +1,23 @@
+# ${project.name} v${project.version}
+# @author     ucchy
+# @license    LGPLv3
+# @copyright  Copyright ucchy 2014
+
+# IRC連携に関するメッセージ設定ファイルです。
+# IRC連携をしていないなら、使用されません。
+
+# IRC側に流れるメッセージです。
+irc:
+  server: '&c* %message'
+  chat: '<%name> %message'
+  join: '&b* %name さんがサーバーに参加しました。'
+  quit: '&b* %name さんがサーバーから退出しました。'
+  kick: '&c* %name さんがサーバーからキックされました。'
+
+# Minecraft側に流れるメッセージです。
+minecraft:
+  chat: '#> <%name> %message%'
+  join: '&b* %name さんがIRCチャンネルに参加しました。'
+  part: '&b* %name さんがIRCチャンネルから退出しました。&r(%reason&r)'
+  quit: '&b* %name さんがIRCから退出しました。&r(%reason&r)'
+  kick: '&c* %name さんがIRCチャンネルからキックされました。&r(%reason&r)'
