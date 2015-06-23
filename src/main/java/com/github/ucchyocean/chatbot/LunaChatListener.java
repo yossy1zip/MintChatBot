@@ -21,14 +21,14 @@ import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
  */
 public class LunaChatListener implements Listener {
 
-    private ChatBot parent;
+    private MintChatBot parent;
     private ChatBotConfig config;
     private LunaChatAPI api;
 
     /**
      * コンストラクタ
      */
-    public LunaChatListener(ChatBot parent) {
+    public LunaChatListener(MintChatBot parent) {
         this.parent = parent;
         this.config = parent.getCBConfig();
         api = LunaChat.getInstance().getLunaChatAPI();

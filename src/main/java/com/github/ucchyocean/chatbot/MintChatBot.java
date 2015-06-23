@@ -23,9 +23,8 @@ import org.bukkit.scheduler.BukkitRunnable;
  * チャットBOTプラグイン
  * @author ucchy
  */
-public class ChatBot extends JavaPlugin implements Listener {
+public class MintChatBot extends JavaPlugin implements Listener {
 
-    private static ChatBot instance;
     private ChatBotConfig config;
     private ResponceData responceData;
     private TimeSignalData timeSignalData;
@@ -33,14 +32,14 @@ public class ChatBot extends JavaPlugin implements Listener {
 
     private VaultChatBridge vaultchat;
 
+    private static MintChatBot instance;
+
     /**
      * プラグインが有効になったときに呼び出されるメソッドです。
      * @see org.bukkit.plugin.java.JavaPlugin#onEnable()
      */
     @Override
     public void onEnable() {
-
-        instance = this;
 
         // 設定のリロード
         reloadAllData();
@@ -169,7 +168,10 @@ public class ChatBot extends JavaPlugin implements Listener {
     /**
      * @return チャットBOTプラグインのインスタンス
      */
-    public static ChatBot getInstance() {
+    public static MintChatBot getInstance() {
+        if ( instance == null ) {
+            instance = (MintChatBot)Bukkit.getPluginManager().getPlugin("MintChatBot");
+        }
         return instance;
     }
 
@@ -177,7 +179,7 @@ public class ChatBot extends JavaPlugin implements Listener {
      * @return チャットBOTプラグインのJarファイル
      */
     protected static File getJarFile() {
-        return instance.getFile();
+        return getInstance().getFile();
     }
 
     /**

@@ -1,5 +1,5 @@
 name: ${project.name}
-main: ${project.groupId}.chatbot.ChatBot
+main: ${project.groupId}.chatbot.MintChatBot
 version: ${project.version}
 author: ucchy
 description: ${project.description}

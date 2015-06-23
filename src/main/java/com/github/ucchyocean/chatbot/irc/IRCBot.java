@@ -13,7 +13,7 @@ import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.IrcException;
 
-import com.github.ucchyocean.chatbot.ChatBot;
+import com.github.ucchyocean.chatbot.MintChatBot;
 
 /**
  * IRCに接続して連携するためのBot
@@ -55,7 +55,7 @@ public class IRCBot extends BukkitRunnable {
      * 与えられた設定でIRCサーバーに接続する
      */
     public void connect() {
-        this.runTaskAsynchronously(ChatBot.getInstance());
+        this.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     /**

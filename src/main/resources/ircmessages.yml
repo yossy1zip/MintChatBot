@@ -16,7 +16,7 @@ irc:
 
 # Minecraft側に流れるメッセージです。
 minecraft:
-  chat: '#> <%name> %message%'
+  chat: '# %name %message%'
   join: '&b* %name さんがIRCチャンネルに参加しました。'
   part: '&b* %name さんがIRCチャンネルから退出しました。&r(%reason&r)'
   quit: '&b* %name さんがIRCから退出しました。&r(%reason&r)'

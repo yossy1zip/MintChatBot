@@ -12,7 +12,8 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <files>
     <file>
-      <source>target/BukkitChatBot.jar</source>
+      <source>target/MintChatBot.jar</source>
+      <destName>plugins/MintChatBot.jar</destName>
     </file>
   </files>
 

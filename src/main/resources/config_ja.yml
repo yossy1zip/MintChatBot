@@ -46,6 +46,9 @@ irc:
   # 接続先のIRCサーバーのポート番号
   serverPort: 6665
 
+  # 接続先のチャンネル名
+  channel: '#MintChanServer'
+
   # BOTのニックネーム
   nickname: 'MintChan'
 
