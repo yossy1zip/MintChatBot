@@ -6,7 +6,6 @@
 package com.github.ucchyocean.chatbot.irc;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 import org.bukkit.scheduler.BukkitRunnable;
 import org.pircbotx.Configuration;
@@ -22,24 +21,45 @@ import com.github.ucchyocean.chatbot.MintChatBot;
 public class IRCBot extends BukkitRunnable {
 
     private PircBotX bot;
+    private IRCBotConfig config;
+    private IRCListener listener;
+
+    /**
+     * コンストラクタ
+     * @param config IRCBotのコンフィグ
+     */
+    public IRCBot(IRCBotConfig config) {
+        this.config = config;
+    }
 
     /**
      * @see java.lang.Runnable#run()
      */
     public void run() {
 
-        Charset jis = Charset.forName("ISO-2022-JP");
+        MintChatBot.getInstance().getLogger().info(
+                String.format("IRC Connecting [%s:%d, %s]...",
+                        config.getServerHostname(), config.getServerPort(), config.getChannel()));
+
+        listener = new IRCListener(config);
 
         Configuration.Builder<PircBotX> builder = new Configuration.Builder<PircBotX>();
-        builder.setName("MintChan");
-        builder.setLogin("BukkitChatBot");
+        builder.setName(config.getNickname());
+        builder.setLogin("MintChatBot");
         builder.setAutoNickChange(true);
-        builder.setServer("irc.friend-chat.jp", 6665);
-        builder.addAutoJoinChannel("#TestTest");
-        builder.setVersion("BukkitChatBot");
+        builder.setServer(config.getServerHostname(), config.getServerPort());
+        builder.addAutoJoinChannel(config.getChannel());
+        builder.setVersion("MintChatBot");
         builder.setAutoReconnect(true);
-        builder.addListener(new IRCListener());
-        builder.setEncoding(jis);
+        builder.addListener(listener);
+        builder.setEncoding(config.getEncoding());
+
+        if ( config.getServerPassword() != null && !config.getServerPassword().equals("") ) {
+            builder.setServerPassword(config.getServerPassword());
+        }
+        if ( config.getNickservPassword() != null && !config.getNickservPassword().equals("") ) {
+            builder.setNickservPassword(config.getNickservPassword());
+        }
 
         bot = new PircBotX(builder.buildConfiguration());
         try {
@@ -59,11 +79,12 @@ public class IRCBot extends BukkitRunnable {
     }
 
     /**
-     * IRCにメッセージを送信する。
+     * LunaChatからIRCにメッセージを送信する。
+     * @param name
      * @param message
      */
-    public void sendMessage(String message) {
-        bot.sendIRC().message("#TestTest", message);
+    public void sendLunaChatMessage(String name, String message) {
+        listener.onLunaChat(name, message);
     }
 
     /**
@@ -72,6 +93,7 @@ public class IRCBot extends BukkitRunnable {
      */
     public void disconnect(String message) {
         bot.stopBotReconnect();
+        this.cancel();
     }
 
     /**

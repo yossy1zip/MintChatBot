@@ -55,6 +55,11 @@ public class LunaChatListener implements Listener {
         // レスポンスデータに一致があるなら、レスポンスを返す
         String responce = responceData.getResponceIfMatch(message, player, vaultchat);
 
+        // IRCBotがいるなら、IRCにも流す
+        if ( parent.getIRCBot() != null ) {
+            parent.getIRCBot().sendLunaChatMessage(player.getDisplayName(), message);
+        }
+
         if ( responce != null ) {
 
             final String botName = config.getBotName();

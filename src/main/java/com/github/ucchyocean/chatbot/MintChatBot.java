@@ -19,6 +19,8 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.github.ucchyocean.chatbot.irc.IRCBot;
+
 /**
  * チャットBOTプラグイン
  * @author ucchy
@@ -29,6 +31,7 @@ public class MintChatBot extends JavaPlugin implements Listener {
     private ResponceData responceData;
     private TimeSignalData timeSignalData;
     private TimerTask timer;
+    private IRCBot ircbot;
 
     private VaultChatBridge vaultchat;
 
@@ -61,6 +64,25 @@ public class MintChatBot extends JavaPlugin implements Listener {
         // タイマーの起動
         timer = new TimerTask(config, timeSignalData);
         timer.runTaskTimerAsynchronously(this, 100, 100);
+
+        // IRCBotの起動
+        if ( config.isIrcEnabled() && config.getIrcBotConfig() != null ) {
+            ircbot = new IRCBot(config.getIrcBotConfig());
+            ircbot.connect();
+        }
+    }
+
+    /**
+     * プラグインが無効になったときに呼び出されるメソッドです。
+     * @see org.bukkit.plugin.java.JavaPlugin#onDisable()
+     */
+    @Override
+    public void onDisable() {
+
+        // IRCBotの停止
+        if ( ircbot != null ) {
+            ircbot.disconnect("Sayonara!!");
+        }
     }
 
     /**
@@ -178,14 +200,14 @@ public class MintChatBot extends JavaPlugin implements Listener {
     /**
      * @return チャットBOTプラグインのJarファイル
      */
-    protected static File getJarFile() {
+    public static File getJarFile() {
         return getInstance().getFile();
     }
 
     /**
      * @return チャットBOTプラグインのコンフィグ
      */
-    protected ChatBotConfig getCBConfig() {
+    public ChatBotConfig getCBConfig() {
         return config;
     }
 
@@ -201,6 +223,13 @@ public class MintChatBot extends JavaPlugin implements Listener {
      */
     protected ResponceData getResponceData() {
         return responceData;
+    }
+
+    /**
+     * @return IRCBot
+     */
+    protected IRCBot getIRCBot() {
+        return ircbot;
     }
 
     /**
@@ -228,5 +257,7 @@ public class MintChatBot extends JavaPlugin implements Listener {
         } else {
             timeSignalData.reloadData();
         }
+
+        // TODO IRC連携設定は再読み込みすべきか
     }
 }

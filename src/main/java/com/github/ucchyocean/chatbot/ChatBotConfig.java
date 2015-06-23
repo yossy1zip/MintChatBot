@@ -9,6 +9,8 @@ import java.io.File;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import com.github.ucchyocean.chatbot.irc.IRCBotConfig;
+
 /**
  * ChatBotのコンフィグ設定
  * @author ucchy
@@ -23,6 +25,8 @@ public class ChatBotConfig {
     private String getURLTitleNotFound;
     private String joinResponce;
     private String firstJoinResponce;
+    private boolean ircEnabled;
+    private IRCBotConfig ircbotConfig;
 
     private File jarFile;
     private File dataFolder;
@@ -65,6 +69,8 @@ public class ChatBotConfig {
         getURLTitleNotFound = config.getString("getURLTitleNotFound");
         joinResponce = config.getString("joinResponce");
         firstJoinResponce = config.getString("firstJoinResponce");
+        ircEnabled = config.getBoolean("irc.enabled", false);
+        ircbotConfig = IRCBotConfig.getConfigFromSection(config.getConfigurationSection("irc"));
     }
 
     /**
@@ -129,5 +135,21 @@ public class ChatBotConfig {
      */
     public String getFirstJoinResponce() {
         return firstJoinResponce;
+    }
+
+    /**
+     * IRC連携を有効にするかどうか
+     * @return
+     */
+    public boolean isIrcEnabled() {
+        return ircEnabled;
+    }
+
+    /**
+     * IRC連携設定
+     * @return
+     */
+    public IRCBotConfig getIrcBotConfig() {
+        return ircbotConfig;
     }
 }
