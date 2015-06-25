@@ -5,51 +5,58 @@
 
 # -------------------- 一般設定 --------------------
 
-# Botの名前
+# Botの名前。
 botName: 'ミントちゃん'
 
-# レスポンスのフォーマット
+# レスポンスのフォーマット。
 responceFormat: '<&e%botName&f> %responce'
 
-# URLを含んだチャット発言がされたときに、URLの内容を取得するかどうか
+# チャットに対する自動応答をするかどうか。自動応答の内容は、responces.txt で設定できます。
+responceChat: true
+
+# サーバー参加に対する自動応答をするかどうか。応答メッセージは、messages.txt で設定できます。
+responceJoinServer: true
+
+# URLを含んだチャット発言がされたときに、URL先のタイトルを取得するかどうか。
+# 応答メッセージは、messages.txt で設定できます。
 getURLTitle: true
 
-# プレイヤーがサーバーに参加したときの応答内容。
-# 空文字列を設定すると（joinResponce: ''）、応答を無効化できます。
-joinResponce: '%playerさんいらっしゃいませ！'
+# 時報を使用するかどうか。時報の内容は timesignals.txt で設定できます。
+timeSignals: true
 
-# プレイヤーがサーバーに初参加したときの応答内容。
-# 空文字列を設定すると（firstJoinResponce: ''）、応答を無効化できます。
-firstJoinResponce: '&f%playerさんが&cサーバーに初参加&fです！\nようこそいらっしゃいませ！！'
+# アラームを使用するかどうか。アラームの内容は timesignals.txt で設定できます。
+alermSignals: true
 
-# URLのタイトルを取得したときの応答内容。空文字列を設定すると、応答を無効化できます。
-getURLTitleSuccess: '%playerさんの貼ったURLは、"%title"というタイトルです。'
-
-# URLのタイトルが取得できなかったときの応答内容。空文字列を設定すると、応答を無効化できます。
-getURLTitleFail: '%playerさんの貼ったURLは、タイトルが取得できませんでした…'
-
-# URLが接続できなかったときの応答内容。空文字列を設定すると、応答を無効化できます。
-getURLTitleNotFound: '%playerさんの貼ったURLは、接続できませんでした…'
-
+# 発言に対して応答するまでの遅延時間(tick)。10～15ticksくらいを指定するとちょうどいいみたいです。
+responceDelayTicks: 15
 
 # -------------------- IRC連携設定 --------------------
 irc:
-  # IRC連携を利用するかどうか
+  # IRC連携を利用するかどうか。
   enabled: false
 
-  # 接続先のIRCサーバー
+  # IRCのチャットに対する自動応答をするかどうか。
+  responceChat: true
+
+  # IRCのチャンネル参加に対する自動応答をするかどうか。
+  responceJoinServer: true
+
+  # IRCにURLを含んだチャット発言がされたときに、URL先のタイトルを取得するかどうか。
+  getURLTitle: true
+
+  # 接続先のIRCサーバー。
   serverHostname: 'irc.friend-chat.jp'
 
   # 接続先のIRCサーバーのパスワード。不要なら空にしてください。
   serverPassword: ''
 
-  # 接続先のIRCサーバーのポート番号
+  # 接続先のIRCサーバーのポート番号。
   serverPort: 6665
 
-  # 接続先のチャンネル名
-  channel: '#MintChanServer'
+  # 接続先のチャンネル名。設定例→  channel: '#MintChanServer'
+  channel: ''
 
-  # BOTのニックネーム
+  # BOTのニックネーム。
   nickname: 'MintChan'
 
   # BOTのニックネームのパスワード。不要なら空にしてください。

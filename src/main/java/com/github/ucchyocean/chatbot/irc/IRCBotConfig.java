@@ -17,6 +17,24 @@ public class IRCBotConfig {
 
     private static final Charset DEFAULT_ENCODE = Charset.forName("ISO-2022-JP");
 
+    /** IRC連携を利用するかどうか。 */
+    private boolean enabled;
+
+    /** IRCのチャットに対する自動応答をするかどうか。 */
+    private boolean responceChat;
+
+    /** IRCのチャンネル参加に対する自動応答をするかどうか。 */
+    private boolean responceJoinServer;
+
+    /** IRCにURLを含んだチャット発言がされたときに、URL先のタイトルを取得するかどうか。 */
+    private boolean getURLTitle;
+
+//    /** IRCに対して時報を使用するかどうか。 */
+//    private boolean timeSignals;
+//
+//    /** IRCに対してアラームを使用するかどうか。 */
+//    private boolean alermSignals;
+
     /** 接続先のIRCサーバー */
     private String serverHostname;
 
@@ -40,26 +58,33 @@ public class IRCBotConfig {
 
     /**
      * コンストラクタ
-     * @param serverHostname 接続先のIRCサーバー
-     * @param serverPassword 接続先のIRCサーバーのパスワード
-     * @param serverPort 接続先のIRCサーバーのポート番号
-     * @param channel 接続先のIRCチャンネル
-     * @param nickname BOTのニックネーム
-     * @param nickservPassword BOTのニックネームのパスワード
-     * @param encoding 接続先のIRCサーバーの文字コード
      */
-    public IRCBotConfig(
-            String serverHostname, String serverPassword, int serverPort, String channel,
-            String nickname, String nickservPassword, String encoding) {
-
-        this.serverHostname = serverHostname;
-        this.serverPassword = serverPassword;
-        this.serverPort = serverPort;
-        this.channel = channel;
-        this.nickname = nickname;
-        this.nickservPassword = nickservPassword;
-        this.encoding = encoding;
+    private IRCBotConfig() {
     }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public boolean isResponceChat() {
+        return responceChat;
+    }
+
+    public boolean isResponceJoinServer() {
+        return responceJoinServer;
+    }
+
+    public boolean isGetURLTitle() {
+        return getURLTitle;
+    }
+
+//    public boolean isTimeSignals() {
+//        return timeSignals;
+//    }
+//
+//    public boolean isAlermSignals() {
+//        return alermSignals;
+//    }
 
     public String getServerHostname() {
         return serverHostname;
@@ -94,21 +119,28 @@ public class IRCBotConfig {
     }
 
     public static IRCBotConfig getConfigFromSection(ConfigurationSection section) {
-        String serverHostname = section.getString("serverHostname");
-        String serverPassword = section.getString("serverPassword");
-        int serverPort = section.getInt("serverPort", 6667);
-        String channel = section.getString("channel");
-        String nickname = section.getString("nickname");
-        String nickservPassword = section.getString("nickservPassword");
-        String encoding = section.getString("encoding");
 
-        if ( serverHostname == null || serverHostname.equals("")
-                || channel == null || channel.equals("") ) {
-            return null;
+        IRCBotConfig config = new IRCBotConfig();
+
+        if ( section == null ) {
+            return config;
         }
 
-        return new IRCBotConfig(
-                serverHostname, serverPassword, serverPort,
-                channel, nickname, nickservPassword, encoding);
+        config.enabled = section.getBoolean("enabled", false);
+        config.responceChat = section.getBoolean("responceChat", true);
+        config.responceJoinServer = section.getBoolean("responceJoinServer", true);
+        config.getURLTitle = section.getBoolean("getURLTitle", true);
+//        config.timeSignals = section.getBoolean("timeSignals", true);
+//        config.alermSignals = section.getBoolean("alermSignals", true);
+
+        config.serverHostname = section.getString("serverHostname");
+        config.serverPassword = section.getString("serverPassword");
+        config.serverPort = section.getInt("serverPort", 6667);
+        config.channel = section.getString("channel");
+        config.nickname = section.getString("nickname", "MintChan");
+        config.nickservPassword = section.getString("nickservPassword");
+        config.encoding = section.getString("encoding", "ISO-2022-JP");
+
+        return config;
     }
 }

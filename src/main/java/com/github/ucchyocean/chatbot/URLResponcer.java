@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -37,22 +36,33 @@ public class URLResponcer extends BukkitRunnable {
     }
 
     private String source;
-    private Player player;
-    private ChatBotConfig config;
-    private VaultChatBridge vaultchat;
+    private String playerName;
+    private String prefix;
+    private String suffix;
+
+    /**
+     * コンストラクタ
+     * @param source
+     * @param playerName
+     */
+    public URLResponcer(String source, String playerName) {
+        this.source = source;
+        this.playerName = playerName;
+        this.prefix = "";
+        this.suffix = "";
+    }
 
     /**
      * コンストラクタ
      * @param source
      * @param player
-     * @param config
+     * @param vaultchat
      */
-    public URLResponcer(String source, Player player, ChatBotConfig config,
-            VaultChatBridge vaultchat) {
+    public URLResponcer(String source, Player player, VaultChatBridge vaultchat) {
         this.source = source;
-        this.player = player;
-        this.config = config;
-        this.vaultchat = vaultchat;
+        this.playerName = (player != null) ? player.getName() : "";
+        this.prefix = (player != null && vaultchat != null) ? vaultchat.getPlayerPrefix(player) : "";
+        this.suffix = (player != null && vaultchat != null) ? vaultchat.getPlayerSuffix(player) : "";
     }
 
     /**
@@ -68,7 +78,7 @@ public class URLResponcer extends BukkitRunnable {
      * レスポンスを取得する
      * @return
      */
-    protected String getResponce() {
+    public String getResponce() {
 
         Matcher matcher = urlPattern.matcher(source);
 
@@ -78,37 +88,26 @@ public class URLResponcer extends BukkitRunnable {
 
         String url = matcher.group(1);
         String title = getURLTitle(url);
-        String playerName = (player != null) ? player.getName() : "";
 
         String responce;
         if ( title == null ) {
-            responce = config.getGetURLTitleNotFound();
-            if ( responce == null || responce.equals("") ) {
-                return null;
-            }
+            responce = MintChatBot.getInstance().getMessages().getResponceIfMatch("getURLTitleNotFound");
         } else if ( title.equals("") ) {
-            responce = config.getGetURLTitleFail();
-            if ( responce == null || responce.equals("") ) {
-                return null;
-            }
+            responce = MintChatBot.getInstance().getMessages().getResponceIfMatch("getURLTitleFail");
         } else {
-            responce = config.getGetURLTitleSuccess();
-            if ( responce == null || responce.equals("") ) {
-                return null;
-            }
+            responce = MintChatBot.getInstance().getMessages().getResponceIfMatch("getURLTitleSuccess");
+        }
+
+        if ( responce == null || responce.equals("") ) {
+            return null;
         }
 
         responce = responce.replace("%player", playerName);
         if ( title != null ) {
             responce = responce.replace("%title", title);
         }
-        if ( vaultchat != null ) {
-            responce = responce.replace("%prefix", vaultchat.getPlayerPrefix(player));
-            responce = responce.replace("%suffix", vaultchat.getPlayerSuffix(player));
-        } else {
-            responce = responce.replace("%prefix", "");
-            responce = responce.replace("%suffix", "");
-        }
+        responce = responce.replace("%prefix", prefix);
+        responce = responce.replace("%suffix", suffix);
         return Utility.replaceColorCode(responce);
     }
 
@@ -249,11 +248,7 @@ public class URLResponcer extends BukkitRunnable {
 
         String responce = getResponce();
         if ( responce != null ) {
-
-            String base = config.getResponceFormat();
-            base = base.replace("%botName", config.getBotName());
-            base = base.replace("%responce", responce);
-            Bukkit.broadcastMessage(Utility.replaceColorCode(base));
+            MintChatBot.getInstance().say(responce);
         }
     }
 
@@ -261,13 +256,13 @@ public class URLResponcer extends BukkitRunnable {
     public static void main(String[] args) {
 
         String[] testees = new String[]{
-                "http://my-cra.mydns.jp/rule.html",
+                "http://forum.minecraftuser.jp/",
                 "https://twitter.com",
                 "https://www.jpcert.or.jp/at/2014/at140002.html",
                 "http://test.google.co.jp", // not found url
         };
 
-        URLResponcer resp = new URLResponcer(null, null, null, null);
+        URLResponcer resp = new URLResponcer(null, null, null);
 
         for ( String t : testees ) {
             System.out.println( resp.getURLTitle(t) );

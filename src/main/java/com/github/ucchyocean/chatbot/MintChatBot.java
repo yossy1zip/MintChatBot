@@ -10,26 +10,22 @@ import java.io.File;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import com.github.ucchyocean.chatbot.irc.IRCBot;
+import com.github.ucchyocean.chatbot.irc.IRCBotConfig;
+import com.github.ucchyocean.chatbot.irc.IRCColor;
 
 /**
  * チャットBOTプラグイン
  * @author ucchy
  */
-public class MintChatBot extends JavaPlugin implements Listener {
+public class MintChatBot extends JavaPlugin {
 
     private ChatBotConfig config;
     private ResponceData responceData;
     private TimeSignalData timeSignalData;
+    private Messages messages;
     private TimerTask timer;
     private IRCBot ircbot;
 
@@ -59,15 +55,15 @@ public class MintChatBot extends JavaPlugin implements Listener {
         }
 
         // リスナーの登録
-        getServer().getPluginManager().registerEvents(this, this);
+        getServer().getPluginManager().registerEvents(new ChatBotListener(), this);
 
         // タイマーの起動
         timer = new TimerTask(config, timeSignalData);
         timer.runTaskTimerAsynchronously(this, 100, 100);
 
         // IRCBotの起動
-        if ( config.isIrcEnabled() && config.getIrcBotConfig() != null ) {
-            ircbot = new IRCBot(config.getIrcBotConfig());
+        if ( checkIRCConfig() ) {
+            ircbot = new IRCBot(config.getIrcbotConfig());
             ircbot.connect();
         }
     }
@@ -86,6 +82,28 @@ public class MintChatBot extends JavaPlugin implements Listener {
     }
 
     /**
+     * Botがチャットに発言を行う。
+     * @param message 発言内容
+     */
+    public void say(String message) {
+
+        if ( message == null ) return;
+
+        String base = config.getResponceFormat();
+        String msg = base
+                .replace("%botName", config.getBotName())
+                .replace("%responce", message);
+        msg = Utility.replaceColorCode(msg.replace("\\n", "\n"));
+        getServer().broadcastMessage(msg);
+
+        if ( ircbot != null ) {
+            // IRC連携状態なら、IRCにも発言する
+            msg = IRCColor.convRES2IRC(message.replace("\\n", " "));
+            ircbot.sendMessage(msg);
+        }
+    }
+
+    /**
      * プラグインのコマンドが実行されたときに呼び出されるメソッドです。
      * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */
@@ -100,91 +118,6 @@ public class MintChatBot extends JavaPlugin implements Listener {
         }
 
         return false;
-    }
-
-    /**
-     * チャット発言がされたときに呼び出されるメソッドです。
-     * @param event
-     */
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
-    public void onChat(AsyncPlayerChatEvent event) {
-
-        String message = event.getMessage();
-        Player player = event.getPlayer();
-
-        // レスポンスデータに一致があるなら、レスポンスを返す
-        String responce = responceData.getResponceIfMatch(message, player, vaultchat);
-
-        if ( responce != null ) {
-
-            String temp = config.getResponceFormat();
-            temp = temp.replace("%botName", config.getBotName());
-            temp = temp.replace("%responce", responce);
-            temp = temp.replace("\\n", "\n");
-            final String res = Utility.replaceColorCode(temp);
-
-            // 3tick遅らせて送信する
-            new BukkitRunnable() {
-                public void run() {
-                    Bukkit.broadcastMessage(res);
-                }
-            }.runTaskLater(this, 3);
-
-            return;
-        }
-
-        // URLマッチをする場合は、タスクを作成して応答させる。
-        if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
-
-            URLResponcer resp = new URLResponcer(message, player, config, vaultchat);
-            resp.runTaskAsynchronously(this);
-
-            return;
-        }
-    }
-
-    /**
-     * プレイヤーがサーバーに参加したときに呼び出されるメソッドです。
-     * @param event
-     */
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
-    public void onServerJoin(PlayerJoinEvent event) {
-
-        Player player = event.getPlayer();
-
-        String responce;
-
-        // レスポンスを取得
-        if ( !player.hasPlayedBefore() ) {
-            responce = config.getFirstJoinResponce();
-        } else {
-            responce = config.getJoinResponce();
-        }
-
-        if ( responce == null || responce.equals("") ) {
-            return;
-        }
-
-        String temp = config.getResponceFormat();
-        String base = temp.replace("%botName", config.getBotName());
-        responce = base.replace("%responce", responce);
-        responce = responce.replace("%player", player.getName());
-        if ( vaultchat != null ) {
-            responce = responce.replace("%prefix", vaultchat.getPlayerPrefix(player));
-            responce = responce.replace("%suffix", vaultchat.getPlayerSuffix(player));
-        } else {
-            responce = responce.replace("%prefix", "");
-            responce = responce.replace("%suffix", "");
-        }
-        responce = responce.replace("\\n", "\n");
-        final String res = Utility.replaceColorCode(responce);
-
-        // 3tick遅らせて送信する
-        new BukkitRunnable() {
-            public void run() {
-                Bukkit.broadcastMessage(res);
-            }
-        }.runTaskLater(this, 3);
     }
 
     /**
@@ -221,7 +154,7 @@ public class MintChatBot extends JavaPlugin implements Listener {
     /**
      * @return レスポンスデータ
      */
-    protected ResponceData getResponceData() {
+    public ResponceData getResponceData() {
         return responceData;
     }
 
@@ -230,6 +163,13 @@ public class MintChatBot extends JavaPlugin implements Listener {
      */
     protected IRCBot getIRCBot() {
         return ircbot;
+    }
+
+    /**
+     * @return メッセージデータ
+     */
+    public Messages getMessages() {
+        return messages;
     }
 
     /**
@@ -258,6 +198,25 @@ public class MintChatBot extends JavaPlugin implements Listener {
             timeSignalData.reloadData();
         }
 
-        // TODO IRC連携設定は再読み込みすべきか
+        // メッセージデータのロード
+        if ( messages == null ) {
+            messages = new Messages(getFile(), getDataFolder());
+        } else {
+            messages.reloadData();
+        }
+
+        // TODO IRCBotは再接続すべきか？
+    }
+
+    /**
+     * IRC設定が有効な状態かどうかを返す
+     * @return IRC設定が有効かどうか
+     */
+    private boolean checkIRCConfig() {
+
+        IRCBotConfig conf = config.getIrcbotConfig();
+        return conf != null && conf.isEnabled()
+                && conf.getServerHostname() != null && !conf.getServerHostname().equals("")
+                && conf.getChannel() != null && !conf.getChannel().equals("");
     }
 }

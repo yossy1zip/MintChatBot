@@ -8,7 +8,6 @@ package com.github.ucchyocean.chatbot;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -51,30 +50,26 @@ public class TimerTask extends BukkitRunnable {
 
         Date date = new Date();
         String time = time_format.format(date);
-        if ( !time.equals(lastSignal) ) {
+
+        if ( time.equals(lastSignal) ) {
+            return;
+        }
+
+        if ( config.isTimeSignals() ) {
 
             // 時報の処理
             String responce = signalData.getResponceIfMatch(time);
-            if ( responce != null ) {
-                String temp = config.getResponceFormat();
-                temp = temp.replace("%botName", config.getBotName());
-                temp = temp.replace("%responce", responce);
-                temp = temp.replace("\\n", "\n");
-                Bukkit.broadcastMessage(Utility.replaceColorCode(temp));
-            }
+            MintChatBot.getInstance().say(responce);
+        }
+
+        if ( config.isAlermSignals() ) {
 
             // アラームの処理
             String datetime = date_format.format(date);
-            responce = signalData.getResponceIfMatch(datetime);
-            if ( responce != null ) {
-                String temp = config.getResponceFormat();
-                temp = temp.replace("%botName", config.getBotName());
-                temp = temp.replace("%responce", responce);
-                temp = temp.replace("\\n", "\n");
-                Bukkit.broadcastMessage(Utility.replaceColorCode(temp));
-            }
-
-            lastSignal = time;
+            String responce = signalData.getResponceIfMatch(datetime);
+            MintChatBot.getInstance().say(responce);
         }
+
+        lastSignal = time;
     }
 }

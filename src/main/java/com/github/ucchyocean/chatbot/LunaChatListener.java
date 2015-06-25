@@ -10,6 +10,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.github.ucchyocean.chatbot.irc.IRCColor;
 import com.github.ucchyocean.lc.LunaChat;
 import com.github.ucchyocean.lc.LunaChatAPI;
 import com.github.ucchyocean.lc.channel.Channel;
@@ -49,36 +50,46 @@ public class LunaChatListener implements Listener {
 
         String message = event.getNgMaskedMessage();
         Player player = event.getPlayer().getPlayer();
-        VaultChatBridge vaultchat = parent.getVaultChat();
-        ResponceData responceData = parent.getResponceData();
-
-        // レスポンスデータに一致があるなら、レスポンスを返す
-        String responce = responceData.getResponceIfMatch(message, player, vaultchat);
 
         // IRCBotがいるなら、IRCにも流す
         if ( parent.getIRCBot() != null ) {
             parent.getIRCBot().sendLunaChatMessage(player.getDisplayName(), message);
         }
 
-        if ( responce != null ) {
+        if ( parent.getCBConfig().isResponceChat() ) {
 
-            final String botName = config.getBotName();
-            final String res = Utility.replaceColorCode(responce.replace("\\n", "\n"));
+            // レスポンスデータに一致があるなら、レスポンスを返す
+            VaultChatBridge vaultchat = parent.getVaultChat();
+            ResponceData responceData = parent.getResponceData();
+            String responce = responceData.getResponceIfMatch(message, player, vaultchat);
 
-            // 10tick遅らせて送信する
-            new BukkitRunnable() {
-                public void run() {
-                    channel.chatFromOtherSource(botName, "", res);
-                }
-            }.runTaskLaterAsynchronously(parent, 10);
+            if ( responce != null ) {
 
-            return;
+                final String botName = config.getBotName();
+                final String res = Utility.replaceColorCode(responce.replace("\\n", "\n"));
+
+                // 数tick遅らせて送信する
+                new BukkitRunnable() {
+                    public void run() {
+                        channel.chatFromOtherSource(botName, "", res);
+
+                        if ( parent.getIRCBot() != null ) {
+                            // IRC連携状態なら、IRCにも発言する
+                            String msg = IRCColor.convRES2IRC(res.replace("\\n", " "));
+                            parent.getIRCBot().sendMessage(msg);
+                        }
+                    }
+                }.runTaskLaterAsynchronously(parent, parent.getCBConfig().getResponceDelayTicks());
+
+                return;
+            }
         }
 
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            final URLResponcer resp = new URLResponcer(message, player, config, vaultchat);
+            VaultChatBridge vaultchat = parent.getVaultChat();
+            final URLResponcer resp = new URLResponcer(message, player, vaultchat);
 
             // 非同期で処理する
             new BukkitRunnable() {
@@ -89,10 +100,16 @@ public class LunaChatListener implements Listener {
                     String responce = resp.getResponce();
                     if ( responce != null ) {
                         channel.chatFromOtherSource(config.getBotName(), "", responce);
+
+                        if ( parent.getIRCBot() != null ) {
+                            // IRC連携状態なら、IRCにも発言する
+                            String msg = IRCColor.convRES2IRC(responce.replace("\\n", " "));
+                            parent.getIRCBot().sendMessage(msg);
+                        }
                     }
                 }
 
-            }.runTaskLaterAsynchronously(parent, 10);
+            }.runTaskLaterAsynchronously(parent, parent.getCBConfig().getResponceDelayTicks());
 
             return;
         }

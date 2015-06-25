@@ -3,20 +3,18 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2015
  */
-package com.github.ucchyocean.chatbot.irc;
+package com.github.ucchyocean.chatbot;
 
 import java.io.File;
 import java.util.HashMap;
 
-import com.github.ucchyocean.chatbot.Utility;
-
 /**
- * IRC関連のメッセージ設定
+ * メッセージ設定
  * @author ucchy
  */
-public class IRCMessages {
+public class Messages {
 
-    private static final String FILE_NAME = "ircmessages.txt";
+    private static final String FILE_NAME = "messages.txt";
 
     private HashMap<String, String> data;
     private File jarFile;
@@ -27,7 +25,7 @@ public class IRCMessages {
      * @param jarFile プラグインのJarファイル
      * @param dataFolder プラグインのデータフォルダ
      */
-    public IRCMessages(File jarFile, File dataFolder) {
+    public Messages(File jarFile, File dataFolder) {
 
         this.jarFile = jarFile;
         file = new File(dataFolder, FILE_NAME);

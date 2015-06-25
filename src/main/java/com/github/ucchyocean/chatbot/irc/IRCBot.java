@@ -79,6 +79,14 @@ public class IRCBot extends BukkitRunnable {
     }
 
     /**
+     * IRCにメッセージを送信する
+     * @param message メッセージ
+     */
+    public void sendMessage(String message) {
+        bot.sendIRC().message(config.getChannel(), message);
+    }
+
+    /**
      * LunaChatからIRCにメッセージを送信する。
      * @param name
      * @param message
@@ -92,7 +100,7 @@ public class IRCBot extends BukkitRunnable {
      * @param message
      */
     public void disconnect(String message) {
-        bot.stopBotReconnect();
+        bot.sendIRC().quitServer(message);
         this.cancel();
     }
 

@@ -64,6 +64,7 @@ public class ResponceData {
      * 応答設定が無いなら、nullが返されます。
      * @param source チャット発言内容
      * @param player チャット発言者
+     * @param vaultchat valueブリッジ
      * @return 応答内容
      */
     public String getResponceIfMatch(String source, Player player,
@@ -75,6 +76,30 @@ public class ResponceData {
 
                 String responce = data.get(key);
                 responce = replaceKeywords(responce, player, vaultchat);
+                responce = replaceMatchingGroups(responce, key, source);
+                responce = replaceRandomGroup(responce);
+                return responce;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
+     * 応答設定が無いなら、nullが返されます。
+     * @param source チャット発言内容
+     * @param player チャット発言者名
+     * @return 応答内容
+     */
+    public String getResponceIfMatch(String source, String player) {
+
+        for ( String key : data.keySet() ) {
+
+            if ( source.matches(key) ) {
+
+                String responce = data.get(key);
+                responce = replaceKeywords(responce, player);
                 responce = replaceMatchingGroups(responce, key, source);
                 responce = replaceRandomGroup(responce);
                 return responce;
@@ -118,6 +143,32 @@ public class ResponceData {
             }
             responce = responce.replace("%suffix", suffix);
         }
+
+        if ( responce.contains("%time") ) {
+            String time = time_format.format(new Date());
+            responce = responce.replace("%time", time);
+        }
+
+        if ( responce.contains("%date") ) {
+            String date = date_format.format(new Date());
+            responce = responce.replace("%date", date);
+        }
+
+        return responce;
+    }
+
+    /**
+     * 指定された文字列に含まれるキーワードを置き換える
+     * @param source 元の文字列
+     * @param player プレイヤー、不要ならnullで良い。
+     * @return キーワード置き換え済みの文字列
+     */
+    private String replaceKeywords(String source, String player) {
+
+        String responce = source;
+        responce = responce.replace("%player", player);
+        responce = responce.replace("%prefix", "");
+        responce = responce.replace("%suffix", "");
 
         if ( responce.contains("%time") ) {
             String time = time_format.format(new Date());

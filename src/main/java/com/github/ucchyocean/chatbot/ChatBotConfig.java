@@ -19,13 +19,13 @@ public class ChatBotConfig {
 
     private String botName;
     private String responceFormat;
+    private boolean responceChat;
+    private boolean responceJoinServer;
     private boolean getURLTitle;
-    private String getURLTitleSuccess;
-    private String getURLTitleFail;
-    private String getURLTitleNotFound;
-    private String joinResponce;
-    private String firstJoinResponce;
-    private boolean ircEnabled;
+    private boolean timeSignals;
+    private boolean alermSignals;
+    private int responceDelayTicks;
+
     private IRCBotConfig ircbotConfig;
 
     private File jarFile;
@@ -61,95 +61,52 @@ public class ChatBotConfig {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
         botName = config.getString("botName", "ミントちゃん");
-        responceFormat = config.getString("responceFormat",
-                "<&e%botName&f> %responce");
+        responceFormat = config.getString("responceFormat", "<&e%botName&f> %responce");
+        responceChat = config.getBoolean("responceChat", true);
+        responceJoinServer = config.getBoolean("responceJoinServer", true);
         getURLTitle = config.getBoolean("getURLTitle", true);
-        getURLTitleSuccess = config.getString("getURLTitleSuccess");
-        getURLTitleFail = config.getString("getURLTitleFail");
-        getURLTitleNotFound = config.getString("getURLTitleNotFound");
-        joinResponce = config.getString("joinResponce");
-        firstJoinResponce = config.getString("firstJoinResponce");
-        ircEnabled = config.getBoolean("irc.enabled", false);
+        timeSignals = config.getBoolean("timeSignals", true);
+        alermSignals = config.getBoolean("alermSignals", true);
+        responceDelayTicks = config.getInt("responceDelayTicks", 15);
+
         ircbotConfig = IRCBotConfig.getConfigFromSection(config.getConfigurationSection("irc"));
     }
 
-    /**
-     * BOTの表示名
-     * @return
-     */
     public String getBotName() {
         return botName;
     }
 
-    /**
-     * オートレスポンスのフォーマット
-     * @return
-     */
     public String getResponceFormat() {
         return responceFormat;
     }
 
-    /**
-     * URLレスポンスを使用するかどうか
-     * @return
-     */
+    public boolean isResponceChat() {
+        return responceChat;
+    }
+
+    public boolean isResponceJoinServer() {
+        return responceJoinServer;
+    }
+
     public boolean isGetURLTitle() {
         return getURLTitle;
     }
 
-    /**
-     * URLレスポンスが成功した時の、返信フォーマット
-     * @return
-     */
-    public String getGetURLTitleSuccess() {
-        return getURLTitleSuccess;
+    public boolean isTimeSignals() {
+        return timeSignals;
     }
 
-    /**
-     * URLレスポンスが失敗した時の、返信フォーマット
-     * @return
-     */
-    public String getGetURLTitleFail() {
-        return getURLTitleFail;
+    public boolean isAlermSignals() {
+        return alermSignals;
     }
 
-    /**
-     * URLレスポンスが失敗した時の、返信フォーマット
-     * @return
-     */
-    public String getGetURLTitleNotFound() {
-        return getURLTitleNotFound;
+    public int getResponceDelayTicks() {
+        return responceDelayTicks;
     }
 
-    /**
-     * サーバー参加レスポンス
-     * @return
-     */
-    public String getJoinResponce() {
-        return joinResponce;
-    }
-
-    /**
-     * サーバー初参加レスポンス
-     * @return
-     */
-    public String getFirstJoinResponce() {
-        return firstJoinResponce;
-    }
-
-    /**
-     * IRC連携を有効にするかどうか
-     * @return
-     */
-    public boolean isIrcEnabled() {
-        return ircEnabled;
-    }
-
-    /**
-     * IRC連携設定
-     * @return
-     */
-    public IRCBotConfig getIrcBotConfig() {
+    public IRCBotConfig getIrcbotConfig() {
         return ircbotConfig;
     }
+
+
 }
