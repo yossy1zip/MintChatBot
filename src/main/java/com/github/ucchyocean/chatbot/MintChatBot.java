@@ -77,7 +77,8 @@ public class MintChatBot extends JavaPlugin {
 
         // IRCBotの停止
         if ( ircbot != null ) {
-            ircbot.disconnect("Sayonara!!");
+            ircbot.disconnect();
+            ircbot = null;
         }
     }
 

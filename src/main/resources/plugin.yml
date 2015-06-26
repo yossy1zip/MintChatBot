@@ -12,17 +12,52 @@ commands:
     usage: |
            /<command> reload - 設定をリロードします。
     permission: chatbot.command
-    permission-message: パーミッション "<permission>" が無いため実行できません。
+    permission-message: 'パーミッション "<permission>" が無いため実行できません。'
+  ircbot:
+    description: ircbotのコマンド
+    aliases: [ib, irc]
+    usage: |
+           /<command> connect - チャンネルに接続します。
+           /<command> disconnect - チャンネルから切断します。
+           /<command> reconnect - チャンネルから一旦切断して、再度接続します。
+           /<command> msg (message) - チャンネルに発言します。
+           /<command> op (target) - 指定したニックネームのユーザーに、チャンネル管理者を与えます。IRCBotがチャンネル管理者である必要があります。
+    permission: chatbot.irc.command
+    permission-message: 'パーミッション "<permission>" が無いため実行できません。'
 
 permissions:
   chatbot.command:
-    description: chatbot コマンドの使用権限
+    description: 'chatbot コマンドの使用権限'
     default: op
-#  chatbot.reload:
-#    description: chatbot reload コマンドの使用権限
-#    default: op
-#  chatbot.*:
-#    children:
-#      chatbot.command: true
-#      chatbot.reload: true
-#    description: chatbot の使用権限全て
+  chatbot.irc.command:
+    description: 'ircbot コマンドの使用権限'
+    default: op
+  chatbot.irc.connect:
+    description: 'irc connect コマンドの使用権限'
+    default: op
+  chatbot.irc.disconnect:
+    description: 'irc disconnect コマンドの使用権限'
+    default: op
+  chatbot.irc.reconnect:
+    description: 'irc reconnect コマンドの使用権限'
+    default: op
+  chatbot.irc.msg:
+    description: 'irc msg コマンドの使用権限'
+    default: op
+  chatbot.irc.op:
+    description: 'irc op コマンドの使用権限'
+    default: op
+  chatbot.irc.*:
+    description: 'ircbot コマンドの全ての権限'
+    children:
+      chatbot.irc.command: true
+      chatbot.irc.connect: true
+      chatbot.irc.disconnect: true
+      chatbot.irc.reconnect: true
+      chatbot.irc.msg: true
+      chatbot.irc.op: true
+  chatbot.*:
+    description: 'chatbot の全ての権限'
+    children:
+      chatbot.command: true
+      chatbot.irc.*: true

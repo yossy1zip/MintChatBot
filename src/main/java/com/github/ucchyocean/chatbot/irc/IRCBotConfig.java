@@ -56,6 +56,9 @@ public class IRCBotConfig {
     /** 接続先のIRCサーバーの文字コード */
     private String encoding;
 
+    /** IRCサーバーから切断するときのメッセージ */
+    private String quitMessage;
+
     /**
      * コンストラクタ
      */
@@ -118,6 +121,10 @@ public class IRCBotConfig {
         }
     }
 
+    public String getQuitMessage() {
+        return quitMessage;
+    }
+
     public static IRCBotConfig getConfigFromSection(ConfigurationSection section) {
 
         IRCBotConfig config = new IRCBotConfig();
@@ -140,6 +147,7 @@ public class IRCBotConfig {
         config.nickname = section.getString("nickname", "MintChan");
         config.nickservPassword = section.getString("nickservPassword");
         config.encoding = section.getString("encoding", "ISO-2022-JP");
+        config.quitMessage = section.getString("quitMessage", "さよなら！またね！");
 
         return config;
     }

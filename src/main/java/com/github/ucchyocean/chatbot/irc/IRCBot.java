@@ -8,8 +8,10 @@ package com.github.ucchyocean.chatbot.irc;
 import java.io.IOException;
 
 import org.bukkit.scheduler.BukkitRunnable;
+import org.pircbotx.Channel;
 import org.pircbotx.Configuration;
 import org.pircbotx.PircBotX;
+import org.pircbotx.User;
 import org.pircbotx.exception.IrcException;
 
 import com.github.ucchyocean.chatbot.MintChatBot;
@@ -99,8 +101,8 @@ public class IRCBot extends BukkitRunnable {
      * IRCから切断する。
      * @param message
      */
-    public void disconnect(String message) {
-        bot.sendIRC().quitServer(message);
+    public void disconnect() {
+        bot.sendIRC().quitServer(config.getQuitMessage());
         this.cancel();
     }
 
@@ -110,5 +112,53 @@ public class IRCBot extends BukkitRunnable {
      */
     public boolean isConnected() {
         return bot.isConnected();
+    }
+
+    /**
+     * IRCBotが、現在チャンネルOPを持っているかどうかを返す
+     * @return チャンネルOPを持っているかどうか
+     */
+    public boolean hasOP() {
+        Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
+        if ( channel == null ) return false;
+        return channel.isOp(bot.getUserBot());
+    }
+
+    /**
+     * 指定したニックネームのユーザーが、チャンネルにいるかどうかを返す
+     * @param nick ニックネーム
+     * @return 指定したニックネームのユーザーがチャンネルにいるかどうか
+     */
+    public boolean existUser(String nick) {
+        Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
+        if ( channel == null ) return false;
+        return getChannelUser(channel, nick) != null;
+    }
+
+    /**
+     * 指定したニックネームのユーザーに、チャンネルのOPを与える
+     * @param nick ニックネーム
+     */
+    public void sendOperator(String nick) {
+        Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
+        if ( channel == null ) return;
+        User target = getChannelUser(channel, nick);
+        if ( target == null ) return;
+        channel.send().op(target);
+    }
+
+    /**
+     * 指定したチャンネルにいる、指定したニックネームのユーザーを取得する
+     * @param channel チャンネル
+     * @param nick ニックネーム
+     * @return ユーザー、取得できない場合はnull
+     */
+    private static User getChannelUser(Channel channel, String nick) {
+        for ( User u : channel.getUsers() ) {
+            if ( u.getNick().equals(nick) ) {
+                return u;
+            }
+        }
+        return null;
     }
 }
