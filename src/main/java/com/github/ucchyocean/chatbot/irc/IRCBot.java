@@ -81,6 +81,13 @@ public class IRCBot extends BukkitRunnable {
     }
 
     /**
+     * 指定されたチャンネルに再入室する
+     */
+    public void joinChannel() {
+        bot.sendIRC().joinChannel(config.getChannel());
+    }
+
+    /**
      * IRCにメッセージを送信する
      * @param message メッセージ
      */
@@ -102,6 +109,7 @@ public class IRCBot extends BukkitRunnable {
      * @param message
      */
     public void disconnect() {
+        bot.stopBotReconnect();
         bot.sendIRC().quitServer(config.getQuitMessage());
         this.cancel();
     }
@@ -111,7 +119,7 @@ public class IRCBot extends BukkitRunnable {
      * @return
      */
     public boolean isConnected() {
-        return bot.isConnected();
+        return bot.isConnected() && !bot.getNick().equals("");
     }
 
     /**
@@ -119,6 +127,7 @@ public class IRCBot extends BukkitRunnable {
      * @return チャンネルOPを持っているかどうか
      */
     public boolean hasOP() {
+        if ( !isConnected() ) return false;
         Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
         if ( channel == null ) return false;
         return channel.isOp(bot.getUserBot());
@@ -130,6 +139,7 @@ public class IRCBot extends BukkitRunnable {
      * @return 指定したニックネームのユーザーがチャンネルにいるかどうか
      */
     public boolean existUser(String nick) {
+        if ( !isConnected() ) return false;
         Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
         if ( channel == null ) return false;
         return getChannelUser(channel, nick) != null;
@@ -140,11 +150,41 @@ public class IRCBot extends BukkitRunnable {
      * @param nick ニックネーム
      */
     public void sendOperator(String nick) {
+        if ( !isConnected() ) return;
         Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
         if ( channel == null ) return;
         User target = getChannelUser(channel, nick);
         if ( target == null ) return;
         channel.send().op(target);
+    }
+
+    /**
+     * 指定したニックネームのユーザーを、チャンネルからキックする
+     * @param nick ニックネーム
+     * @param reason キックの理由
+     */
+    public void kick(String nick, String reason) {
+        if ( !isConnected() ) return;
+        Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
+        if ( channel == null ) return;
+        User target = getChannelUser(channel, nick);
+        if ( target == null ) return;
+        if ( reason == null || reason.equals("") ) {
+            channel.send().kick(target);
+        } else {
+            channel.send().kick(target, reason);
+        }
+    }
+
+    /**
+     * Botがチャンネルに接続しているかどうかを返す
+     * @return チャンネルに接続しているかどうか
+     */
+    public boolean isJoinedChannel() {
+        if ( !isConnected() ) return false;
+        Channel channel = bot.getUserChannelDao().getChannel(config.getChannel());
+        if ( channel == null ) return false;
+        return (getChannelUser(channel, bot.getNick()) != null);
     }
 
     /**
@@ -160,5 +200,13 @@ public class IRCBot extends BukkitRunnable {
             }
         }
         return null;
+    }
+
+    /**
+     * このBotのニックネームを返す
+     * @return Botのニックネーム
+     */
+    protected String getBotNick() {
+        return bot.getNick();
     }
 }

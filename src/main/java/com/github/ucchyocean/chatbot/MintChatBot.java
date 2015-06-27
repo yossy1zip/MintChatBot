@@ -6,6 +6,7 @@
 package com.github.ucchyocean.chatbot;
 
 import java.io.File;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -15,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.github.ucchyocean.chatbot.irc.IRCBot;
 import com.github.ucchyocean.chatbot.irc.IRCBotConfig;
 import com.github.ucchyocean.chatbot.irc.IRCColor;
+import com.github.ucchyocean.chatbot.irc.IRCCommand;
 
 /**
  * チャットBOTプラグイン
@@ -30,6 +32,8 @@ public class MintChatBot extends JavaPlugin {
     private IRCBot ircbot;
 
     private VaultChatBridge vaultchat;
+
+    private IRCCommand irccommand;
 
     private static MintChatBot instance;
 
@@ -57,15 +61,15 @@ public class MintChatBot extends JavaPlugin {
         // リスナーの登録
         getServer().getPluginManager().registerEvents(new ChatBotListener(), this);
 
+        // コマンドのロード
+        irccommand = new IRCCommand();
+
         // タイマーの起動
         timer = new TimerTask(config, timeSignalData);
         timer.runTaskTimerAsynchronously(this, 100, 100);
 
         // IRCBotの起動
-        if ( checkIRCConfig() ) {
-            ircbot = new IRCBot(config.getIrcbotConfig());
-            ircbot.connect();
-        }
+        connectIRCBot();
     }
 
     /**
@@ -76,10 +80,7 @@ public class MintChatBot extends JavaPlugin {
     public void onDisable() {
 
         // IRCBotの停止
-        if ( ircbot != null ) {
-            ircbot.disconnect();
-            ircbot = null;
-        }
+        disconnectIRCBot();
     }
 
     /**
@@ -112,13 +113,33 @@ public class MintChatBot extends JavaPlugin {
     public boolean onCommand(
             CommandSender sender, Command command, String label, String[] args) {
 
-        if ( args.length >= 1 && args[0].equals("reload") ) {
-            reloadAllData();
-            sender.sendMessage("設定ファイルをリロードしました。");
-            return true;
+        if ( command.getName().equals("chatbot") ) {
+
+            if ( args.length >= 1 && args[0].equals("reload") ) {
+                reloadAllData();
+                sender.sendMessage("設定ファイルをリロードしました。");
+                return true;
+            }
+
+        } else if ( command.getName().equals("ircbot") ) {
+
+            return irccommand.onCommand(sender, command, label, args);
+
         }
 
         return false;
+    }
+
+    /**
+     * プラグインのコマンドでTABキー補完が実行されたときに呼び出されるメソッドです。
+     * @see org.bukkit.plugin.java.JavaPlugin#onTabComplete(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
+     */
+    @Override
+    public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        if ( command.getName().equals("ircbot") ) {
+            return irccommand.onTabComplete(sender, command, label, args);
+        }
+        return super.onTabComplete(sender, command, label, args);
     }
 
     /**
@@ -162,8 +183,31 @@ public class MintChatBot extends JavaPlugin {
     /**
      * @return IRCBot
      */
-    protected IRCBot getIRCBot() {
+    public IRCBot getIRCBot() {
         return ircbot;
+    }
+
+    /**
+     * IRC連携を開始する
+     * @return
+     */
+    public IRCBot connectIRCBot() {
+        if ( ircbot != null ) return ircbot;
+        if ( checkIRCConfig() ) {
+            ircbot = new IRCBot(config.getIrcbotConfig());
+            ircbot.connect();
+            return ircbot;
+        }
+        return null;
+    }
+
+    /**
+     * IRC連携を終了する
+     */
+    public void disconnectIRCBot() {
+        if ( ircbot == null ) return;
+        ircbot.disconnect();
+        ircbot = null;
     }
 
     /**
@@ -205,8 +249,6 @@ public class MintChatBot extends JavaPlugin {
         } else {
             messages.reloadData();
         }
-
-        // TODO IRCBotは再接続すべきか？
     }
 
     /**
@@ -218,6 +260,7 @@ public class MintChatBot extends JavaPlugin {
         IRCBotConfig conf = config.getIrcbotConfig();
         return conf != null && conf.isEnabled()
                 && conf.getServerHostname() != null && !conf.getServerHostname().equals("")
+                && conf.getNickname() != null && !conf.getNickname().equals("")
                 && conf.getChannel() != null && !conf.getChannel().equals("");
     }
 }

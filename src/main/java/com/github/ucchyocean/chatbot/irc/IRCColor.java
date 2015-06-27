@@ -72,6 +72,10 @@ public enum IRCColor {
             if ( c.mc.equals("") ) continue;
             message = message.replace(SEC + c.mc, c.irc);
         }
+
+        // IRCの標準文字色 白 は、Minecraftだと見にくいので、黒 に変更する。
+        message = message.replace(WHITE.irc, BLACK.irc);
+
         return message;
     }
 
@@ -87,6 +91,10 @@ public enum IRCColor {
             if ( c.irc.equals("") ) continue;
             message = message.replace(c.irc, SEC + c.mc);
         }
+
+        // IRCの標準文字色 黒 は、Minecraftだと見にくいので、白 に変更する。
+        message = message.replace(SEC + BLACK.mc, SEC + WHITE.mc);
+
         return message;
     }
 

@@ -110,11 +110,13 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      */
     @Override
     public void onKick(KickEvent<PircBotX> event) throws Exception {
-        if ( event.getUser().getNick().equals(bot.getNick()) ) return;
+//        if ( event.getUser().getNick().equals(bot.getNick()) ) return;
         String format = plugin.getMessages().getResponceIfMatch("irc_kick");
         if ( format == null ) return;
-        String message = IRCColor.convRES2MC(
-                format.replace("%name", event.getUser().getNick()).replace("%reason", event.getReason()));
+        String message = IRCColor.convRES2MC(format
+                .replace("%name", event.getRecipient().getNick())
+                .replace("%reason", event.getReason())
+                .replace("%kicker", event.getUser().getNick()));
         Bukkit.broadcastMessage(message);
     }
 

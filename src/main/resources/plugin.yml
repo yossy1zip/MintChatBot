@@ -19,9 +19,10 @@ commands:
     usage: |
            /<command> connect - チャンネルに接続します。
            /<command> disconnect - チャンネルから切断します。
-           /<command> reconnect - チャンネルから一旦切断して、再度接続します。
-           /<command> msg (message) - チャンネルに発言します。
+           /<command> reconnect - チャンネルに再接続します。
+           /<command> message (message) - チャンネルに発言します。
            /<command> op (target) - 指定したニックネームのユーザーに、チャンネル管理者を与えます。IRCBotがチャンネル管理者である必要があります。
+           /<command> kick (target) [reason] - 指定したニックネームのユーザーを、チャンネルからキックします。IRCBotがチャンネル管理者である必要があります。
     permission: chatbot.irc.command
     permission-message: 'パーミッション "<permission>" が無いため実行できません。'
 
@@ -39,13 +40,16 @@ permissions:
     description: 'irc disconnect コマンドの使用権限'
     default: op
   chatbot.irc.reconnect:
-    description: 'irc reconnect コマンドの使用権限'
+    description: 'irc disconnect コマンドの使用権限'
     default: op
-  chatbot.irc.msg:
-    description: 'irc msg コマンドの使用権限'
+  chatbot.irc.message:
+    description: 'irc message コマンドの使用権限'
     default: op
   chatbot.irc.op:
     description: 'irc op コマンドの使用権限'
+    default: op
+  chatbot.irc.kick:
+    description: 'irc kick コマンドの使用権限'
     default: op
   chatbot.irc.*:
     description: 'ircbot コマンドの全ての権限'
@@ -54,8 +58,9 @@ permissions:
       chatbot.irc.connect: true
       chatbot.irc.disconnect: true
       chatbot.irc.reconnect: true
-      chatbot.irc.msg: true
+      chatbot.irc.message: true
       chatbot.irc.op: true
+      chatbot.irc.kick: true
   chatbot.*:
     description: 'chatbot の全ての権限'
     children:
