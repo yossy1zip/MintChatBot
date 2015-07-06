@@ -27,6 +27,9 @@ timeSignals: true
 # アラームを使用するかどうか。アラームの内容は timesignals.txt で設定できます。
 alermSignals: true
 
+# 繰り返し通知を使用するかどうか。通知の内容は timesignals.txt で設定できます。
+repeatSignals: true
+
 # 発言に対して応答するまでの遅延時間(tick)。10～15ticksくらいを指定するとちょうどいいみたいです。
 responceDelayTicks: 15
 

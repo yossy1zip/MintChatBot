@@ -7,6 +7,7 @@ package com.github.ucchyocean.chatbot;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * 時報のデータ管理オブジェクト
@@ -48,5 +49,13 @@ public class TimeSignalData {
      */
     public String getResponceIfMatch(String source) {
         return data.get(source);
+    }
+
+    /**
+     * 全てのキーを取得する
+     * @return 全てのキー
+     */
+    public Set<String> getAllKeys() {
+        return data.keySet();
     }
 }

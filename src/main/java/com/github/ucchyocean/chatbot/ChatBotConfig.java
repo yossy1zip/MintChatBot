@@ -24,6 +24,7 @@ public class ChatBotConfig {
     private boolean getURLTitle;
     private boolean timeSignals;
     private boolean alermSignals;
+    private boolean repeatSignals;
     private int responceDelayTicks;
 
     private IRCBotConfig ircbotConfig;
@@ -67,6 +68,7 @@ public class ChatBotConfig {
         getURLTitle = config.getBoolean("getURLTitle", true);
         timeSignals = config.getBoolean("timeSignals", true);
         alermSignals = config.getBoolean("alermSignals", true);
+        repeatSignals = config.getBoolean("repeatSignals", true);
         responceDelayTicks = config.getInt("responceDelayTicks", 15);
 
         ircbotConfig = IRCBotConfig.getConfigFromSection(config.getConfigurationSection("irc"));
@@ -100,6 +102,10 @@ public class ChatBotConfig {
         return alermSignals;
     }
 
+    public boolean isRepeatSignals() {
+        return repeatSignals;
+    }
+
     public int getResponceDelayTicks() {
         return responceDelayTicks;
     }
@@ -107,6 +113,4 @@ public class ChatBotConfig {
     public IRCBotConfig getIrcbotConfig() {
         return ircbotConfig;
     }
-
-
 }
