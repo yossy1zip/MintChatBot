@@ -155,7 +155,8 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
         String format = plugin.getMessages().getResponceIfMatch("irc_chat");
         if ( format != null ) {
             String message = IRCColor.convRES2MC(
-                    format.replace("%name", event.getUser().getNick()).replace("%message", event.getMessage()));
+                    format.replace("%name", event.getUser().getNick()).replace("%message",
+                            IRCColor.convIRC2MC(event.getMessage())));
             Bukkit.broadcastMessage(message);
         }
 
