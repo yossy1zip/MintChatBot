@@ -13,6 +13,7 @@ import java.net.URL;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -41,30 +42,34 @@ public class URLResponcer extends BukkitRunnable {
     private String playerName;
     private String prefix;
     private String suffix;
+    private CommandSender recipient;
 
     /**
      * コンストラクタ
      * @param source
      * @param playerName
      */
-    public URLResponcer(String source, String playerName) {
+    public URLResponcer(String source, CommandSender recipient, String playerName) {
         this.source = source;
         this.playerName = playerName;
         this.prefix = "";
         this.suffix = "";
+        this.recipient = recipient;
     }
 
     /**
      * コンストラクタ
      * @param source
+     * @param recipient
      * @param player
      * @param vaultchat
      */
-    public URLResponcer(String source, Player player, VaultChatBridge vaultchat) {
+    public URLResponcer(String source, CommandSender recipient, Player player, VaultChatBridge vaultchat) {
         this.source = source;
         this.playerName = (player != null) ? player.getName() : "";
         this.prefix = (player != null && vaultchat != null) ? vaultchat.getPlayerPrefix(player) : "";
         this.suffix = (player != null && vaultchat != null) ? vaultchat.getPlayerSuffix(player) : "";
+        this.recipient = recipient;
     }
 
     /**
@@ -250,7 +255,11 @@ public class URLResponcer extends BukkitRunnable {
 
         String responce = getResponce();
         if ( responce != null ) {
-            MintChatBot.getInstance().say(responce);
+            if ( recipient == null ) {
+                MintChatBot.getInstance().say(responce);
+            } else {
+                MintChatBot.getInstance().tell(responce, recipient);
+            }
         }
     }
 
@@ -264,7 +273,7 @@ public class URLResponcer extends BukkitRunnable {
                 "http://test.google.co.jp", // not found url
         };
 
-        URLResponcer resp = new URLResponcer(null, null, null);
+        URLResponcer resp = new URLResponcer(null, null, null, null);
 
         for ( String t : testees ) {
             System.out.println( resp.getURLTitle(t) );

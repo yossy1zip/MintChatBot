@@ -12,7 +12,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import com.github.ucchyocean.chatbot.bridge.DynmapBridge;
 import com.github.ucchyocean.chatbot.bridge.LunaChatListener;
@@ -126,18 +128,92 @@ public class MintChatBot extends JavaPlugin {
     }
 
     /**
+     * Botが個別メッセージを送信する。
+     * @param message
+     * @param target
+     */
+    public void tell(String message, CommandSender target) {
+
+        if ( message == null ) return;
+
+        String base = config.getResponceFormat();
+        String msg = base
+                .replace("%botName", config.getBotName())
+                .replace("%responce", message);
+        msg = Utility.replaceColorCode(msg.replace("\\n", "\n"));
+        target.sendMessage(msg);
+    }
+
+    /**
      * プラグインのコマンドが実行されたときに呼び出されるメソッドです。
      * @see org.bukkit.plugin.java.JavaPlugin#onCommand(org.bukkit.command.CommandSender, org.bukkit.command.Command, java.lang.String, java.lang.String[])
      */
     @Override
     public boolean onCommand(
-            CommandSender sender, Command command, String label, String[] args) {
+            final CommandSender sender, Command command, String label, String[] args) {
 
         if ( command.getName().equals("chatbot") ) {
 
             if ( args.length >= 1 && args[0].equals("reload") ) {
+
+                if ( !sender.hasPermission("chatbot.command.reload") ) {
+                    return true;
+                }
+
                 reloadAllData();
                 sender.sendMessage("設定ファイルをリロードしました。");
+                return true;
+
+            } else if ( args.length >= 2 && args[0].equals("ask") ) {
+
+                if ( !sender.hasPermission("chatbot.command.ask") ) {
+                    return true;
+                }
+
+                StringBuilder messageTemp = new StringBuilder();
+                for ( int index=1; index<args.length; index++ ) {
+                    messageTemp.append(args[index] + " ");
+                }
+                String message = messageTemp.toString().trim();
+
+                Player player = sender instanceof Player ? (Player)sender : null;
+
+                if ( config.isResponceChat() ) {
+                    // レスポンスデータに一致があるなら、レスポンスを返す
+                    final String responce;
+                    if ( player != null ) {
+                        responce = responceData.getResponceIfMatch(message, player, vaultchat);
+                    } else {
+                        responce = responceData.getResponceIfMatch(message, sender.getName());
+                    }
+
+                    if ( responce != null ) {
+
+                        // 数tick遅らせて送信する
+                        new BukkitRunnable() {
+                            public void run() {
+                                tell(responce, sender);
+                            }
+                        }.runTaskLater(this, config.getResponceDelayTicks());
+
+                        return true;
+                    }
+                }
+
+                // URLマッチをする場合は、タスクを作成して応答させる。
+                if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
+
+                    URLResponcer resp;
+                    if ( player != null ) {
+                        resp = new URLResponcer(message, sender, player, vaultchat);
+                    } else {
+                        resp = new URLResponcer(message, sender, sender.getName());
+                    }
+                    resp.runTaskLaterAsynchronously(this, config.getResponceDelayTicks());
+
+                    return true;
+                }
+
                 return true;
             }
 

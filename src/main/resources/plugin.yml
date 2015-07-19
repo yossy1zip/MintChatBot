@@ -10,6 +10,7 @@ commands:
     description: chatbotのコマンド
     aliases: [cb, bot]
     usage: |
+           /<command> ask (message) - プライベートチャットでBotに応答を尋ねます。
            /<command> reload - 設定をリロードします。
     permission: chatbot.command
     permission-message: 'パーミッション "<permission>" が無いため実行できません。'
@@ -29,7 +30,13 @@ commands:
 permissions:
   chatbot.command:
     description: 'chatbot コマンドの使用権限'
+    default: true
+  chatbot.command.reload:
+    description: 'chatbot reload コマンドの使用権限'
     default: op
+  chatbot.command.ask:
+    description: 'chatbot ask コマンドの使用権限'
+    default: true
   chatbot.irc.command:
     description: 'ircbot コマンドの使用権限'
     default: op
@@ -65,4 +72,6 @@ permissions:
     description: 'chatbot の全ての権限'
     children:
       chatbot.command: true
+      chatbot.command.reload: true
+      chatbot.command.ask: true
       chatbot.irc.*: true

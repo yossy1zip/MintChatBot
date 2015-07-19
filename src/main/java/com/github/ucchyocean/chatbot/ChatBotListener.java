@@ -55,7 +55,7 @@ public class ChatBotListener implements Listener {
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            URLResponcer resp = new URLResponcer(message, player, vaultchat);
+            URLResponcer resp = new URLResponcer(message, null, player, vaultchat);
             resp.runTaskLaterAsynchronously(parent, config.getResponceDelayTicks());
 
             return;

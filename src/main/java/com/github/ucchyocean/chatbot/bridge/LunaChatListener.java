@@ -105,7 +105,7 @@ public class LunaChatListener implements Listener {
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
             VaultChatBridge vaultchat = parent.getVaultChat();
-            final URLResponcer resp = new URLResponcer(message, player, vaultchat);
+            final URLResponcer resp = new URLResponcer(message, null, player, vaultchat);
 
             // 非同期で処理する
             new BukkitRunnable() {
