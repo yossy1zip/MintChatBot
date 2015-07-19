@@ -35,6 +35,7 @@ public class ResponceData {
     private Pattern patternRandomGroup;
     private String prevResponceKey;
     private long prevResponceTime;
+    private int responceCooldownSeconds;
 
     private File jarFile;
     private File file;
@@ -44,9 +45,10 @@ public class ResponceData {
      * @param jarFile プラグインのJarファイル
      * @param dataFolder プラグインのデータフォルダ
      */
-    public ResponceData(File jarFile, File dataFolder) {
+    public ResponceData(File jarFile, File dataFolder, int responceCooldownSeconds) {
 
         this.jarFile = jarFile;
+        this.responceCooldownSeconds = responceCooldownSeconds;
 
         time_format = new SimpleDateFormat(RESPONCE_TIME);
         date_format = new SimpleDateFormat(RESPONCE_DATE, Locale.JAPAN);
@@ -86,7 +88,7 @@ public class ResponceData {
 
             if ( source.matches(key) ) {
 
-                long cooldown = MintChatBot.getInstance().getCBConfig().getResponceCooldownSeconds() * 1000;
+                long cooldown = responceCooldownSeconds * 1000;
                 if ( isNotRepeat && prevResponceKey != null &&
                         prevResponceKey.equals(key) &&
                         (System.currentTimeMillis() - prevResponceTime) < cooldown ) {
@@ -284,14 +286,15 @@ public class ResponceData {
     public static void main(String[] args) {
 
         File folder = new File("src\\main\\resources");
-        ResponceData test = new ResponceData(null, folder);
+        ResponceData test = new ResponceData(null, folder, 15);
 
         for ( String key : test.data.keySet() ) {
             System.out.println(String.format("key={%s}, data={%s}", key, test.data.get(key)));
         }
 
         String[] testees = new String[]{"hi.", "Hi!", "おはよう", "いまなんじ？", "今日何日",
-                "ごはんください", "お金をください！", "マスターいつもの", "占い", "⑨", "(´ω｀)", "(*´ω｀*)"};
+                "ごはんください", "お金をください！", "マスターいつもの", "占い", "⑨", "(´ω｀)", "(*´ω｀*)",
+                "さいころ"};
 
         for ( String testee : testees ) {
             System.out.println(String.format("testee={%s}, responce={%s}",

@@ -334,7 +334,7 @@ public class MintChatBot extends JavaPlugin {
 
         // レスポンスデータのロード
         if ( responceData == null ) {
-            responceData = new ResponceData(getFile(), getDataFolder());
+            responceData = new ResponceData(getFile(), getDataFolder(), config.getResponceCooldownSeconds());
         } else {
             responceData.reloadData();
         }
