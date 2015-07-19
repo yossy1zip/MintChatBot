@@ -8,6 +8,8 @@ package com.github.ucchyocean.chatbot;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 時報のデータ管理オブジェクト
@@ -18,6 +20,7 @@ public class TimeSignalData {
     private static final String FILE_NAME = "timesignals.txt";
 
     private HashMap<String, String> data;
+    private Pattern patternRandomGroup;
 
     private File jarFile;
     private File file;
@@ -28,6 +31,8 @@ public class TimeSignalData {
      * @param dataFolder プラグインのデータフォルダ
      */
     public TimeSignalData(File jarFile, File dataFolder) {
+
+        patternRandomGroup = Pattern.compile(".*\\(([^\\)]*)\\).*");
 
         this.jarFile = jarFile;
         file = new File(dataFolder, FILE_NAME);
@@ -48,7 +53,12 @@ public class TimeSignalData {
      * @return 応答内容
      */
     public String getResponceIfMatch(String source) {
-        return data.get(source);
+
+        if ( !data.containsKey(source) ) {
+            return null;
+        }
+
+        return replaceRandomGroup(data.get(source));
     }
 
     /**
@@ -57,5 +67,26 @@ public class TimeSignalData {
      */
     public Set<String> getAllKeys() {
         return data.keySet();
+    }
+
+    /**
+     * ランダムグループが設定されている場合に、ランダムに選択して置き換えして返します。
+     * @param source 元の文字列
+     * @return 置き換えられた文字列
+     */
+    private String replaceRandomGroup(String source) {
+
+        Matcher matcher = patternRandomGroup.matcher(source);
+
+        if ( matcher.matches() ) {
+
+            String org = matcher.group(1);
+            String[] items = org.split("\\|");
+
+            int index = (int)(Math.random() * items.length);
+            return source.replace("(" + org + ")", items[index]);
+        }
+
+        return source;
     }
 }
