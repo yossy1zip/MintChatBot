@@ -49,7 +49,7 @@ public class LunaChatListener implements Listener {
 
         final Channel channel = api.getChannel(event.getChannelName());
 
-        if ( !channel.isBroadcastChannel() ) {
+        if ( !channel.isBroadcastChannel() || channel.isWorldRange() || channel.getChatRange() > 0 ) {
             return;
         }
 
