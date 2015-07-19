@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
+
 /**
  * URLを含んだチャット発言に対するレスポンスを行うクラス
  * @author ucchy

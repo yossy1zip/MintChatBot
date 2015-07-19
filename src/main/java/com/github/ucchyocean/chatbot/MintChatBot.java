@@ -9,10 +9,14 @@ import java.io.File;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.github.ucchyocean.chatbot.bridge.DynmapBridge;
+import com.github.ucchyocean.chatbot.bridge.LunaChatListener;
+import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
 import com.github.ucchyocean.chatbot.irc.IRCBot;
 import com.github.ucchyocean.chatbot.irc.IRCBotConfig;
 import com.github.ucchyocean.chatbot.irc.IRCColor;
@@ -32,6 +36,7 @@ public class MintChatBot extends JavaPlugin {
     private IRCBot ircbot;
 
     private VaultChatBridge vaultchat;
+    private DynmapBridge dynmap;
 
     private IRCCommand irccommand;
 
@@ -52,10 +57,20 @@ public class MintChatBot extends JavaPlugin {
             vaultchat = VaultChatBridge.load();
         }
 
+        // Dynmapをロード
+        if ( getServer().getPluginManager().isPluginEnabled("dynmap") ) {
+            dynmap = DynmapBridge.load(this);
+        }
+
         // LunaChatがロードされているなら、専用リスナーを登録する
         if ( getServer().getPluginManager().isPluginEnabled("LunaChat") ) {
-            getServer().getPluginManager().registerEvents(
-                    new LunaChatListener(this), this);
+            String lcversion = getServer().getPluginManager().getPlugin("LunaChat").getDescription().getVersion();
+            if ( !Utility.isUpperVersion(lcversion, "2.7.4") ) {
+                getLogger().warning("LunaChatのバージョンが古いため、LunaChat連携が使用できません。");
+                getLogger().warning("LunaChat v2.7.4 以降のバージョンをご利用ください。");
+            } else {
+                getServer().getPluginManager().registerEvents(new LunaChatListener(this), this);
+            }
         }
 
         // リスナーの登録
@@ -97,6 +112,11 @@ public class MintChatBot extends JavaPlugin {
                 .replace("%responce", message);
         msg = Utility.replaceColorCode(msg.replace("\\n", "\n"));
         getServer().broadcastMessage(msg);
+
+        if ( dynmap != null ) {
+            // dynmap連携状態なら、dynmapにも発言する
+            dynmap.broadcast(ChatColor.stripColor(msg));
+        }
 
         if ( ircbot != null ) {
             // IRC連携状態なら、IRCにも発言する
@@ -169,8 +189,15 @@ public class MintChatBot extends JavaPlugin {
     /**
      * @return VaultChatブリッジ
      */
-    protected VaultChatBridge getVaultChat() {
+    public VaultChatBridge getVaultChat() {
         return vaultchat;
+    }
+
+    /**
+     * @return Dynmapブリッジ
+     */
+    public DynmapBridge getDynmap() {
+        return dynmap;
     }
 
     /**

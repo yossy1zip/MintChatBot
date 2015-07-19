@@ -41,7 +41,7 @@ minecraft_kick: &4* %name さんがサーバーからキックされました。
 # Minecraft側に流れるメッセージです。
 irc_connect: &eIRCサーバーに接続しました。
 irc_disconnect: &eIRCサーバーから切断しました。
-irc_chat: &7(%name) &f%message
+irc_chat: &7(%name@irc) &f%message
 irc_join: &b* %name さんがIRCチャンネルに参加しました。
 irc_part: &b* %name さんがIRCチャンネルから退出しました。&r(%reason&r)
 irc_quit: &b* %name さんがIRCから退出しました。&r(%reason&r)

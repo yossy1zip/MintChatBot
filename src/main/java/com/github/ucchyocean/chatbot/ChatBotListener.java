@@ -13,6 +13,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
+
 /**
  * ChatBotのリスナークラス
  * @author ucchy

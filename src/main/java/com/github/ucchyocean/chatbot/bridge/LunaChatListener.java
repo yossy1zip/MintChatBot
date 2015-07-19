@@ -3,18 +3,23 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2014
  */
-package com.github.ucchyocean.chatbot;
+package com.github.ucchyocean.chatbot.bridge;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import com.github.ucchyocean.chatbot.ChatBotConfig;
+import com.github.ucchyocean.chatbot.MintChatBot;
+import com.github.ucchyocean.chatbot.ResponceData;
+import com.github.ucchyocean.chatbot.URLResponcer;
+import com.github.ucchyocean.chatbot.Utility;
 import com.github.ucchyocean.chatbot.irc.IRCColor;
 import com.github.ucchyocean.lc.LunaChat;
 import com.github.ucchyocean.lc.LunaChatAPI;
 import com.github.ucchyocean.lc.channel.Channel;
-import com.github.ucchyocean.lc.event.LunaChatChannelChatEvent;
+import com.github.ucchyocean.lc.event.LunaChatChannelMessageEvent;
 
 /**
  * LunaChat連携用リスナー
@@ -40,7 +45,7 @@ public class LunaChatListener implements Listener {
      * @param event
      */
     @EventHandler
-    public void onChannelChat(LunaChatChannelChatEvent event) {
+    public void onChannelChat(LunaChatChannelMessageEvent event) {
 
         final Channel channel = api.getChannel(event.getChannelName());
 
@@ -48,12 +53,23 @@ public class LunaChatListener implements Listener {
             return;
         }
 
-        String message = event.getNgMaskedMessage();
-        Player player = event.getPlayer().getPlayer();
+        String message = event.getOriginalMessage();
+        Player player = (event.getPlayer() != null) ? player = event.getPlayer().getPlayer() : null;
+        String displayName = event.getDisplayName();
+
+        // Bot自身の発言なら無視する
+        if ( displayName.startsWith(config.getBotName() + "@") ) {
+            return;
+        }
+
+        // dynmapのweb発言なら、Dynmap連携の方で流れるから、無視する
+        if ( displayName.endsWith("@web") ) {
+            return;
+        }
 
         // IRCBotがいるなら、IRCにも流す
         if ( parent.getIRCBot() != null ) {
-            parent.getIRCBot().sendLunaChatMessage(player.getDisplayName(), message);
+            parent.getIRCBot().sendLunaChatMessage(displayName, message);
         }
 
         if ( parent.getCBConfig().isResponceChat() ) {

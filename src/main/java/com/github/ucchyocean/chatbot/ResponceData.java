@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
+
 /**
  * レスポンス用のデータ管理オブジェクト
  * @author ucchy

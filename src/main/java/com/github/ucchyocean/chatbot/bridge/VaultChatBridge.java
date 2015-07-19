@@ -3,7 +3,7 @@
  * @license    LGPLv3
  * @copyright  Copyright ucchy 2013
  */
-package com.github.ucchyocean.chatbot;
+package com.github.ucchyocean.chatbot.bridge;
 
 import net.milkbowl.vault.chat.Chat;
 

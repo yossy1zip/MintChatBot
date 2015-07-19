@@ -6,6 +6,7 @@
 package com.github.ucchyocean.chatbot.irc;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -110,7 +111,6 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      */
     @Override
     public void onKick(KickEvent<PircBotX> event) throws Exception {
-//        if ( event.getUser().getNick().equals(bot.getNick()) ) return;
         String format = plugin.getMessages().getResponceIfMatch("irc_kick");
         if ( format == null ) return;
         String message = IRCColor.convRES2MC(format
@@ -158,6 +158,10 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
                     format.replace("%name", event.getUser().getNick()).replace("%message",
                             IRCColor.convIRC2MC(event.getMessage())));
             Bukkit.broadcastMessage(message);
+
+            if ( plugin.getDynmap() != null ) {
+                plugin.getDynmap().broadcast(ChatColor.stripColor(message));
+            }
         }
 
         // 必要に応じて、自動応答を返す
