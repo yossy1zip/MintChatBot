@@ -94,9 +94,8 @@ public class DynmapBridge implements Listener {
         if ( parent.getCBConfig().isResponceChat() ) {
 
             // レスポンスデータに一致があるなら、レスポンスを返す
-            VaultChatBridge vaultchat = parent.getVaultChat();
             ResponceData responceData = parent.getResponceData();
-            String responce = responceData.getResponceIfMatch(message, null, vaultchat);
+            String responce = responceData.getResponceIfMatch(message, displayName);
 
             if ( responce != null ) {
 
@@ -116,8 +115,7 @@ public class DynmapBridge implements Listener {
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            VaultChatBridge vaultchat = parent.getVaultChat();
-            final URLResponcer resp = new URLResponcer(message, null, vaultchat);
+            final URLResponcer resp = new URLResponcer(message, displayName);
 
             // 非同期で処理する
             new BukkitRunnable() {
