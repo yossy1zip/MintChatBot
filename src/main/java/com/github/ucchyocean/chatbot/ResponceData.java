@@ -33,6 +33,8 @@ public class ResponceData {
     private SimpleDateFormat time_format;
     private SimpleDateFormat date_format;
     private Pattern patternRandomGroup;
+    private String prevResponceKey;
+    private long prevResponceTime;
 
     private File jarFile;
     private File file;
@@ -74,12 +76,32 @@ public class ResponceData {
 
         for ( String key : data.keySet() ) {
 
+            String responce = data.get(key);
+
+            boolean isNotRepeat = false;
+            if ( key.startsWith("@") ) {
+                isNotRepeat = true;
+                key = key.substring(1);
+            }
+
             if ( source.matches(key) ) {
 
-                String responce = data.get(key);
+                long cooldown = MintChatBot.getInstance().getCBConfig().getResponceCooldownSeconds() * 1000;
+                if ( isNotRepeat && prevResponceKey != null &&
+                        prevResponceKey.equals(key) &&
+                        (System.currentTimeMillis() - prevResponceTime) < cooldown ) {
+                    return null;
+                }
+
                 responce = replaceKeywords(responce, player, vaultchat);
                 responce = replaceMatchingGroups(responce, key, source);
                 responce = replaceRandomGroup(responce);
+
+                if ( isNotRepeat ) {
+                    prevResponceKey = key;
+                    prevResponceTime = System.currentTimeMillis();
+                }
+
                 return responce;
             }
         }
@@ -98,12 +120,32 @@ public class ResponceData {
 
         for ( String key : data.keySet() ) {
 
+            String responce = data.get(key);
+
+            boolean isNotRepeat = false;
+            if ( key.startsWith("@") ) {
+                isNotRepeat = true;
+                key = key.substring(1);
+            }
+
             if ( source.matches(key) ) {
 
-                String responce = data.get(key);
+                long cooldown = MintChatBot.getInstance().getCBConfig().getResponceCooldownSeconds() * 1000;
+                if ( isNotRepeat && prevResponceKey != null &&
+                        prevResponceKey.equals(key) &&
+                        (System.currentTimeMillis() - prevResponceTime) < cooldown ) {
+                    return null;
+                }
+
                 responce = replaceKeywords(responce, player);
                 responce = replaceMatchingGroups(responce, key, source);
                 responce = replaceRandomGroup(responce);
+
+                if ( isNotRepeat ) {
+                    prevResponceKey = key;
+                    prevResponceTime = System.currentTimeMillis();
+                }
+
                 return responce;
             }
         }

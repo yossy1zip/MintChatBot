@@ -33,6 +33,9 @@ repeatSignals: true
 # 発言に対して応答するまでの遅延時間(tick)。10～15ticksくらいを指定するとちょうどいいみたいです。
 responceDelayTicks: 15
 
+# 先頭に @ を付けた自動応答設定に対するクールダウンタイム。
+responceCooldownSeconds: 15
+
 # -------------------- IRC連携設定 --------------------
 irc:
   # IRC連携を利用するかどうか。
