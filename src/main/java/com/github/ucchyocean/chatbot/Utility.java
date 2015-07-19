@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -30,6 +31,7 @@ public class Utility {
 
     /**
      * 設定ファイルを読み込む
+     * @param jarFile jarファイル
      * @param file 読み込むファイル
      * @return 読み込み結果
      */
@@ -41,9 +43,14 @@ public class Utility {
             parent.mkdirs();
         }
 
-        // 設定ファイルの存在を確認し、無いなら同名ファイルをjarから取り出す
+        // 設定ファイルの存在を確認し、無いなら同名ファイルをjarから取り出す。
+        // Jarファイル設定が無いならここで終了する。
         if ( !file.exists() ) {
-            Utility.copyFileFromJar(jarFile, file, file.getName());
+            if ( jarFile != null ) {
+                Utility.copyFileFromJar(jarFile, file, file.getName());
+            } else {
+                return new HashMap<String, String>();
+            }
         }
 
         // ファイルの内容を読み出す
@@ -86,6 +93,40 @@ public class Utility {
         }
 
         return datas;
+    }
+
+    /**
+     * 設定ファイルに1行書き込む
+     * @param file 書き込むファイル
+     * @param data データ
+     */
+    public static void saveConfigFile(File file, HashMap<String, String> data) {
+
+        // 親フォルダの存在を確認し、無いなら作る
+        File parent = file.getParentFile();
+        if ( !parent.exists() ) {
+            parent.mkdirs();
+        }
+
+        // 書き込み
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(file));
+            for ( String key : data.keySet() ) {
+                writer.write(key + " : " + data.get(key));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if ( writer != null ) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    // do nothing.
+                }
+            }
+        }
     }
 
     /**

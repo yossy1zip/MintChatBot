@@ -28,11 +28,11 @@ getURLTitleNotFound: %playerさんの貼ったURLは、接続できませんで�
 
 
 # ========== IRC連携メッセージ ==========
-# IRC連携に関するメッセージ設定ファイルです。
+# IRC連携に関するメッセージ設定です。
 # IRC連携をしていないなら、使用されません。
+# 空文字列を設定、または、コメントアウトすると、応答を無効化できます。
 
 # IRC側に流れるメッセージです。
-minecraft_server: &4* %message
 minecraft_chat: <%name> %message
 minecraft_join: &6* %name さんがサーバーに参加しました。
 minecraft_quit: &6* %name さんがサーバーから退出しました。
@@ -46,3 +46,12 @@ irc_join: &b* %name さんがIRCチャンネルに参加しました。
 irc_part: &b* %name さんがIRCチャンネルから退出しました。&r(%reason&r)
 irc_quit: &b* %name さんがIRCから退出しました。&r(%reason&r)
 irc_kick: &c* %name さんがIRCチャンネルからキックされました。&r(%reason&r)
+
+
+# ========== 学習機能メッセージ ==========
+# 学習機能メッセージです。
+# IRC連携をしていないなら、使用されません。
+# 空文字列を設定、または、コメントアウトすると、応答を無効化できます。
+
+study_learn: &e%key を覚えました！
+study_forget: &e%key を忘れました。

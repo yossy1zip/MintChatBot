@@ -25,11 +25,17 @@ import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
 public class ResponceData {
 
     private static final String FILE_NAME = "responces.txt";
+    private static final String FILE_NAME_USERDATA = "userdata.txt";
 
     private static final String RESPONCE_TIME = "HH:mm:ss";
     private static final String RESPONCE_DATE = "yyyy/MM/dd E";
 
+    private static final String COMMAND_COOLDOWN = "@cooldown";
+    private static final String COMMAND_LEARN = "@learn";
+    private static final String COMMAND_FORGET = "@forget";
+
     private HashMap<String, String> data;
+    private HashMap<String, String> userdata;
     private SimpleDateFormat time_format;
     private SimpleDateFormat date_format;
     private Pattern patternRandomGroup;
@@ -63,6 +69,8 @@ public class ResponceData {
      */
     public void reloadData() {
         data = Utility.loadConfigFile(jarFile, file);
+        userdata = Utility.loadConfigFile(null,
+                new File(file.getParentFile(), FILE_NAME_USERDATA));
     }
 
     /**
@@ -75,6 +83,55 @@ public class ResponceData {
      */
     public String getResponceIfMatch(String source, Player player,
             VaultChatBridge vaultchat) {
+
+        String res = getRes(data, source, player, vaultchat, null);
+        if ( res != null ) {
+            if ( res.equals(COMMAND_COOLDOWN) ) return null;
+            if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
+            if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+            return res;
+        }
+
+        res = getRes(userdata, source, player, vaultchat, null);
+        if ( res == null ) return null;
+        if ( res.equals(COMMAND_COOLDOWN) ) return null;
+        if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
+        if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+        return res;
+    }
+
+    /**
+     * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
+     * 応答設定が無いなら、nullが返されます。
+     * @param source チャット発言内容
+     * @param player チャット発言者名
+     * @return 応答内容
+     */
+    public String getResponceIfMatch(String source, String player) {
+
+        String res = getRes(data, source, null, null, player);
+        if ( res != null ) {
+            if ( res.equals(COMMAND_COOLDOWN) ) return null;
+            if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
+            if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+            return res;
+        }
+
+        res = getRes(userdata, source, null, null, player);
+        if ( res == null ) return null;
+        if ( res.equals(COMMAND_COOLDOWN) ) return null;
+        if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
+        if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+        return res;
+    }
+
+
+    /**
+     * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
+     * 応答設定が無いなら、nullが返されます。
+     */
+    private String getRes(HashMap<String, String> data,
+            String source, Player player, VaultChatBridge vaultchat, String altName) {
 
         for ( String key : data.keySet() ) {
 
@@ -92,12 +149,17 @@ public class ResponceData {
                 if ( isNotRepeat && prevResponceKey != null &&
                         prevResponceKey.equals(key) &&
                         (System.currentTimeMillis() - prevResponceTime) < cooldown ) {
-                    return null;
+                    return COMMAND_COOLDOWN;
                 }
 
-                responce = replaceKeywords(responce, player, vaultchat);
+                if ( player != null ) {
+                    responce = replaceKeywords(responce, player, vaultchat);
+                } else {
+                    responce = replaceKeywords(responce, altName);
+                }
                 responce = replaceMatchingGroups(responce, key, source);
                 responce = replaceRandomGroup(responce);
+                responce = responce.replace("（", "(").replace("）", ")");
 
                 if ( isNotRepeat ) {
                     prevResponceKey = key;
@@ -111,48 +173,57 @@ public class ResponceData {
         return null;
     }
 
+    private String learn(String source) {
+
+        Pattern pat = Pattern.compile("@learn (.+)=(.+)");
+        Matcher matcher = pat.matcher(source);
+        if ( !matcher.matches() ) return null;
+        String key = matcher.group(1);
+        String value = matcher.group(2);
+        setUserData(key, value);
+
+        String format = MintChatBot.getInstance().getMessages()
+                .getResponceIfMatch("study_learn");
+        if ( format == null ) return null;
+        return format.replace("%key", key).replace("%value", value);
+    }
+
+    private String forget(String source) {
+
+        Pattern pat = Pattern.compile("@forget (.+)");
+        Matcher matcher = pat.matcher(source);
+        if ( !matcher.matches() ) return null;
+        String key = matcher.group(1);
+        boolean result = removeUserData(key);
+
+        if ( !result ) return null;
+        String format = MintChatBot.getInstance().getMessages()
+                .getResponceIfMatch("study_forget");
+        if ( format == null ) return null;
+        return format.replace("%key", key);
+    }
+
     /**
-     * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
-     * 応答設定が無いなら、nullが返されます。
-     * @param source チャット発言内容
-     * @param player チャット発言者名
-     * @return 応答内容
+     * ユーザーデータを追加設定or上書き設定する
+     * @param key キー
+     * @param value 値
      */
-    public String getResponceIfMatch(String source, String player) {
+    private void setUserData(String key, String value) {
+        userdata.put(key, value);
+        Utility.saveConfigFile(new File(file.getParentFile(), FILE_NAME_USERDATA), userdata);
+    }
 
-        for ( String key : data.keySet() ) {
-
-            String responce = data.get(key);
-
-            boolean isNotRepeat = false;
-            if ( key.startsWith("@") ) {
-                isNotRepeat = true;
-                key = key.substring(1);
-            }
-
-            if ( source.matches(key) ) {
-
-                long cooldown = MintChatBot.getInstance().getCBConfig().getResponceCooldownSeconds() * 1000;
-                if ( isNotRepeat && prevResponceKey != null &&
-                        prevResponceKey.equals(key) &&
-                        (System.currentTimeMillis() - prevResponceTime) < cooldown ) {
-                    return null;
-                }
-
-                responce = replaceKeywords(responce, player);
-                responce = replaceMatchingGroups(responce, key, source);
-                responce = replaceRandomGroup(responce);
-
-                if ( isNotRepeat ) {
-                    prevResponceKey = key;
-                    prevResponceTime = System.currentTimeMillis();
-                }
-
-                return responce;
-            }
+    /**
+     * ユーザーデータから設定を削除する
+     * @param key キー
+     */
+    private boolean removeUserData(String key) {
+        String res = userdata.remove(key);
+        if ( res != null ) {
+            Utility.saveConfigFile(new File(file.getParentFile(), FILE_NAME_USERDATA), userdata);
+            return true;
         }
-
-        return null;
+        return false;
     }
 
     /**
@@ -298,7 +369,7 @@ public class ResponceData {
 
         for ( String testee : testees ) {
             System.out.println(String.format("testee={%s}, responce={%s}",
-                    testee, test.getResponceIfMatch(testee, null, null)));
+                    testee, test.getResponceIfMatch(testee, "てすと")));
         }
     }
 
