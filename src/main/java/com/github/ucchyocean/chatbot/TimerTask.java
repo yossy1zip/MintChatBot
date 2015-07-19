@@ -31,12 +31,16 @@ public class TimerTask extends BukkitRunnable {
     private ChatBotConfig config;
     private TimeSignalData signalData;
 
+    private Pattern patternRandomGroup;
+
     /**
      * コンストラクタ
      * @param config コンフィグ
      * @param signalData 時報データ
      */
     public TimerTask(ChatBotConfig config, TimeSignalData signalData) {
+
+        patternRandomGroup = Pattern.compile(".*\\(([^\\)]*)\\).*");
 
         this.config = config;
         this.signalData = signalData;
@@ -61,7 +65,7 @@ public class TimerTask extends BukkitRunnable {
 
                     new BukkitRunnable() {
                         public void run() {
-                            MintChatBot.getInstance().say(responce);
+                            MintChatBot.getInstance().say(replaceRandomGroup(responce));
                         }
                     }.runTaskTimerAsynchronously(MintChatBot.getInstance(), ticks, ticks);
                 }
@@ -87,7 +91,7 @@ public class TimerTask extends BukkitRunnable {
 
             // 時報の処理
             String responce = signalData.getResponceIfMatch(time);
-            MintChatBot.getInstance().say(responce);
+            MintChatBot.getInstance().say(replaceRandomGroup(responce));
         }
 
         if ( config.isAlermSignals() ) {
@@ -95,9 +99,32 @@ public class TimerTask extends BukkitRunnable {
             // アラームの処理
             String datetime = date_format.format(date);
             String responce = signalData.getResponceIfMatch(datetime);
-            MintChatBot.getInstance().say(responce);
+            MintChatBot.getInstance().say(replaceRandomGroup(responce));
         }
 
         lastSignal = time;
+    }
+
+    /**
+     * ランダムグループが設定されている場合に、ランダムに選択して置き換えして返します。
+     * @param source 元の文字列
+     * @return 置き換えられた文字列
+     */
+    private String replaceRandomGroup(String source) {
+
+        if ( source == null ) return null;
+
+        Matcher matcher = patternRandomGroup.matcher(source);
+
+        if ( matcher.matches() ) {
+
+            String org = matcher.group(1);
+            String[] items = org.split("\\|");
+
+            int index = (int)(Math.random() * items.length);
+            return source.replace("(" + org + ")", items[index]);
+        }
+
+        return source;
     }
 }

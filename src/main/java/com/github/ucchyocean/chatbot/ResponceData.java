@@ -27,7 +27,7 @@ public class ResponceData {
     private static final String FILE_NAME = "responces.txt";
 
     private static final String RESPONCE_TIME = "HH:mm:ss";
-    private static final String RESPONCE_DATE = "yyyy/MM/dd(E)";
+    private static final String RESPONCE_DATE = "yyyy/MM/dd E";
 
     private HashMap<String, String> data;
     private SimpleDateFormat time_format;
