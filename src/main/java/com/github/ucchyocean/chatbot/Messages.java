@@ -6,7 +6,7 @@
 package com.github.ucchyocean.chatbot;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 /**
  * メッセージ設定
@@ -16,7 +16,7 @@ public class Messages {
 
     private static final String FILE_NAME = "messages.txt";
 
-    private HashMap<String, String> data;
+    private LinkedHashMap<String, String> data;
     private File jarFile;
     private File file;
 

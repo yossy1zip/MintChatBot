@@ -6,7 +6,7 @@
 package com.github.ucchyocean.chatbot;
 
 import java.io.File;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
@@ -17,7 +17,7 @@ public class TimeSignalData {
 
     private static final String FILE_NAME = "timesignals.txt";
 
-    private HashMap<String, String> data;
+    private LinkedHashMap<String, String> data;
 
     private File jarFile;
     private File file;

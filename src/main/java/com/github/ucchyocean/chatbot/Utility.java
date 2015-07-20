@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
@@ -35,7 +35,7 @@ public class Utility {
      * @param file 読み込むファイル
      * @return 読み込み結果
      */
-    public static HashMap<String, String> loadConfigFile(File jarFile, File file) {
+    public static LinkedHashMap<String, String> loadConfigFile(File jarFile, File file) {
 
         // 親フォルダの存在を確認し、無いなら作る
         File parent = file.getParentFile();
@@ -49,7 +49,7 @@ public class Utility {
             if ( jarFile != null ) {
                 Utility.copyFileFromJar(jarFile, file, file.getName());
             } else {
-                return new HashMap<String, String>();
+                return new LinkedHashMap<String, String>();
             }
         }
 
@@ -82,7 +82,7 @@ public class Utility {
         }
 
         // 内容の解析
-        HashMap<String, String> datas = new HashMap<String, String>();
+        LinkedHashMap<String, String> datas = new LinkedHashMap<String, String>();
 
         for ( String c : contents ) {
 
@@ -100,7 +100,7 @@ public class Utility {
      * @param file 書き込むファイル
      * @param data データ
      */
-    public static void saveConfigFile(File file, HashMap<String, String> data) {
+    public static void saveConfigFile(File file, LinkedHashMap<String, String> data) {
 
         // 親フォルダの存在を確認し、無いなら作る
         File parent = file.getParentFile();

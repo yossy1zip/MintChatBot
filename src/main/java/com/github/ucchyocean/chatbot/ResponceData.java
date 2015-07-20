@@ -8,7 +8,7 @@ package com.github.ucchyocean.chatbot;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,8 +34,8 @@ public class ResponceData {
     private static final String COMMAND_LEARN = "@learn";
     private static final String COMMAND_FORGET = "@forget";
 
-    private HashMap<String, String> data;
-    private HashMap<String, String> userdata;
+    private LinkedHashMap<String, String> data;
+    private LinkedHashMap<String, String> userdata;
     private SimpleDateFormat time_format;
     private SimpleDateFormat date_format;
     private Pattern patternRandomGroup;
@@ -130,7 +130,7 @@ public class ResponceData {
      * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
      * 応答設定が無いなら、nullが返されます。
      */
-    private String getRes(HashMap<String, String> data,
+    private String getRes(LinkedHashMap<String, String> data,
             String source, Player player, VaultChatBridge vaultchat, String altName) {
 
         for ( String key : data.keySet() ) {
