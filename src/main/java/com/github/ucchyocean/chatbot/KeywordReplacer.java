@@ -28,7 +28,6 @@ public class KeywordReplacer {
 
     private SimpleDateFormat time_format;
     private SimpleDateFormat date_format;
-    private Pattern patternRandomGroup;
 
     /**
      * コンストラクタ
@@ -36,7 +35,6 @@ public class KeywordReplacer {
     protected KeywordReplacer() {
         time_format = new SimpleDateFormat(RESPONCE_TIME);
         date_format = new SimpleDateFormat(RESPONCE_DATE, Locale.JAPAN);
-        patternRandomGroup = Pattern.compile(".*\\(([^\\)]*)\\).*");
     }
 
     /**
@@ -224,18 +222,27 @@ public class KeywordReplacer {
 
         if ( source == null ) return null;
 
-        Matcher matcher = patternRandomGroup.matcher(source);
+        String responce = source;
 
-        if ( matcher.matches() ) {
+        while (true) {
 
-            String org = matcher.group(1);
-            String[] items = org.split("\\|");
+            int fromIndex = responce.indexOf("(");
+            if ( fromIndex < 0 ) {
+                break;
+            }
+            int toIndex = responce.indexOf(")", fromIndex);
+            if ( toIndex < 0 ) {
+                break;
+            }
+
+            String parts = responce.substring(fromIndex, toIndex + 1);
+            String[] items = parts.substring(1, parts.length() -1).split("\\|");
 
             int index = (int)(Math.random() * items.length);
-            return source.replace("(" + org + ")", items[index]);
+            responce = responce.replace(parts, items[index]);
         }
 
-        return source;
+        return responce;
     }
 
     /**
