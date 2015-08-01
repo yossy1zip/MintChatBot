@@ -182,7 +182,7 @@ public class MintChatBot extends JavaPlugin {
                     // レスポンスデータに一致があるなら、レスポンスを返す
                     final String responce;
                     if ( player != null ) {
-                        responce = responceData.getResponceIfMatch(message, player, vaultchat);
+                        responce = responceData.getResponceIfMatch(message, player);
                     } else {
                         responce = responceData.getResponceIfMatch(message, sender.getName());
                     }
@@ -205,7 +205,7 @@ public class MintChatBot extends JavaPlugin {
 
                     URLResponcer resp;
                     if ( player != null ) {
-                        resp = new URLResponcer(message, sender, player, vaultchat);
+                        resp = new URLResponcer(message, sender, player);
                     } else {
                         resp = new URLResponcer(message, sender, sender.getName());
                     }

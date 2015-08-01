@@ -33,11 +33,10 @@ public class ChatBotListener implements Listener {
         MintChatBot parent = MintChatBot.getInstance();
         ChatBotConfig config = parent.getCBConfig();
         ResponceData responceData = parent.getResponceData();
-        VaultChatBridge vaultchat = parent.getVaultChat();
 
         if ( config.isResponceChat() ) {
             // レスポンスデータに一致があるなら、レスポンスを返す
-            final String responce = responceData.getResponceIfMatch(message, player, vaultchat);
+            final String responce = responceData.getResponceIfMatch(message, player);
 
             if ( responce != null ) {
 
@@ -55,7 +54,7 @@ public class ChatBotListener implements Listener {
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            URLResponcer resp = new URLResponcer(message, null, player, vaultchat);
+            URLResponcer resp = new URLResponcer(message, null, player);
             resp.runTaskLaterAsynchronously(parent, config.getResponceDelayTicks());
 
             return;

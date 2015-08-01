@@ -17,8 +17,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
-
 /**
  * URLを含んだチャット発言に対するレスポンスを行うクラス
  * @author ucchy
@@ -39,9 +37,8 @@ public class URLResponcer extends BukkitRunnable {
     }
 
     private String source;
-    private String playerName;
-    private String prefix;
-    private String suffix;
+    private Player player;
+    private String altPlayerName;
     private CommandSender recipient;
 
     /**
@@ -49,11 +46,10 @@ public class URLResponcer extends BukkitRunnable {
      * @param source
      * @param playerName
      */
-    public URLResponcer(String source, CommandSender recipient, String playerName) {
+    public URLResponcer(String source, CommandSender recipient, String altPlayerName) {
         this.source = source;
-        this.playerName = playerName;
-        this.prefix = "";
-        this.suffix = "";
+        this.altPlayerName = altPlayerName;
+        this.player = null;
         this.recipient = recipient;
     }
 
@@ -64,11 +60,10 @@ public class URLResponcer extends BukkitRunnable {
      * @param player
      * @param vaultchat
      */
-    public URLResponcer(String source, CommandSender recipient, Player player, VaultChatBridge vaultchat) {
+    public URLResponcer(String source, CommandSender recipient, Player player) {
         this.source = source;
-        this.playerName = (player != null) ? player.getName() : "";
-        this.prefix = (player != null && vaultchat != null) ? vaultchat.getPlayerPrefix(player) : "";
-        this.suffix = (player != null && vaultchat != null) ? vaultchat.getPlayerSuffix(player) : "";
+        this.altPlayerName = null;
+        this.player = player;
         this.recipient = recipient;
     }
 
@@ -109,12 +104,8 @@ public class URLResponcer extends BukkitRunnable {
             return null;
         }
 
-        responce = responce.replace("%player", playerName);
-        if ( title != null ) {
-            responce = responce.replace("%title", title);
-        }
-        responce = responce.replace("%prefix", prefix);
-        responce = responce.replace("%suffix", suffix);
+        responce = (new KeywordReplacer()).replaceForTitle(responce, player, title, altPlayerName);
+
         return Utility.replaceColorCode(responce);
     }
 
@@ -260,23 +251,6 @@ public class URLResponcer extends BukkitRunnable {
             } else {
                 MintChatBot.getInstance().tell(responce, recipient);
             }
-        }
-    }
-
-    // デバッグ用エントリ
-    public static void main(String[] args) {
-
-        String[] testees = new String[]{
-                "http://forum.minecraftuser.jp/",
-                "https://twitter.com",
-                "https://www.jpcert.or.jp/at/2014/at140002.html",
-                "http://test.google.co.jp", // not found url
-        };
-
-        URLResponcer resp = new URLResponcer(null, null, null, null);
-
-        for ( String t : testees ) {
-            System.out.println( resp.getURLTitle(t) );
         }
     }
 }

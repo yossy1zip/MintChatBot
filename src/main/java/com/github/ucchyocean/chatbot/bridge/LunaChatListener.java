@@ -75,9 +75,8 @@ public class LunaChatListener implements Listener {
         if ( parent.getCBConfig().isResponceChat() ) {
 
             // レスポンスデータに一致があるなら、レスポンスを返す
-            VaultChatBridge vaultchat = parent.getVaultChat();
             ResponceData responceData = parent.getResponceData();
-            String responce = responceData.getResponceIfMatch(message, player, vaultchat);
+            String responce = responceData.getResponceIfMatch(message, player);
 
             if ( responce != null ) {
 
@@ -104,8 +103,7 @@ public class LunaChatListener implements Listener {
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            VaultChatBridge vaultchat = parent.getVaultChat();
-            final URLResponcer resp = new URLResponcer(message, null, player, vaultchat);
+            final URLResponcer resp = new URLResponcer(message, null, player);
 
             // 非同期で処理する
             new BukkitRunnable() {
