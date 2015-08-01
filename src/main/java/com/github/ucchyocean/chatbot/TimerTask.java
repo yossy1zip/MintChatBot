@@ -6,6 +6,7 @@
 package com.github.ucchyocean.chatbot;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +34,8 @@ public class TimerTask extends BukkitRunnable {
 
     private Pattern patternRandomGroup;
 
+    private ArrayList<BukkitRunnable> notifies;
+
     /**
      * コンストラクタ
      * @param config コンフィグ
@@ -52,6 +55,8 @@ public class TimerTask extends BukkitRunnable {
         // 繰り返し通知を起動する。
         if ( config.isRepeatSignals() ) {
 
+            notifies = new ArrayList<BukkitRunnable>();
+
             for ( String key : signalData.getAllKeys() ) {
 
                 Matcher matcher = repeat_pattern.matcher(key);
@@ -63,11 +68,14 @@ public class TimerTask extends BukkitRunnable {
                     int ticks = minutes * 60 * 20;
                     final String responce = signalData.getResponceIfMatch(key);
 
-                    new BukkitRunnable() {
-                        public void run() {
-                            MintChatBot.getInstance().say(replaceRandomGroup(responce));
-                        }
-                    }.runTaskTimerAsynchronously(MintChatBot.getInstance(), ticks, ticks);
+                    BukkitRunnable notify =
+                        new BukkitRunnable() {
+                            public void run() {
+                                MintChatBot.getInstance().say(replaceRandomGroup(responce));
+                            }
+                        };
+                    notify.runTaskTimerAsynchronously(MintChatBot.getInstance(), ticks, ticks);
+                    notifies.add(notify);
                 }
             }
         }
@@ -126,5 +134,14 @@ public class TimerTask extends BukkitRunnable {
         }
 
         return source;
+    }
+
+    /**
+     * 全ての繰り返し通知をキャンセルする
+     */
+    protected void cancelAllNotifies() {
+        for ( BukkitRunnable r : notifies ) {
+            r.cancel();
+        }
     }
 }

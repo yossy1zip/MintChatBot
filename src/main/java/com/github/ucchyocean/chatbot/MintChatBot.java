@@ -81,10 +81,6 @@ public class MintChatBot extends JavaPlugin {
         // コマンドのロード
         irccommand = new IRCCommand();
 
-        // タイマーの起動
-        timer = new TimerTask(config, timeSignalData);
-        timer.runTaskTimerAsynchronously(this, 100, 100);
-
         // IRCBotの起動
         connectIRCBot();
     }
@@ -156,7 +152,9 @@ public class MintChatBot extends JavaPlugin {
 
             if ( args.length >= 1 && args[0].equals("reload") ) {
 
-                if ( !sender.hasPermission("chatbot.command.reload") ) {
+                String node = "chatbot.command.reload";
+                if ( !sender.hasPermission(node) ) {
+                    sender.sendMessage("パーミッション " + node + " が無いため実行できません。");
                     return true;
                 }
 
@@ -166,7 +164,9 @@ public class MintChatBot extends JavaPlugin {
 
             } else if ( args.length >= 2 && args[0].equals("ask") ) {
 
-                if ( !sender.hasPermission("chatbot.command.ask") ) {
+                String node = "chatbot.command.ask";
+                if ( !sender.hasPermission(node) ) {
+                    sender.sendMessage("パーミッション " + node + " が無いため実行できません。");
                     return true;
                 }
 
@@ -352,6 +352,15 @@ public class MintChatBot extends JavaPlugin {
         } else {
             messages.reloadData();
         }
+
+        // タイマーの起動
+        if ( timer != null ) {
+            timer.cancelAllNotifies();
+            timer.cancel();
+            timer = null;
+        }
+        timer = new TimerTask(config, timeSignalData);
+        timer.runTaskTimerAsynchronously(this, 200, 200);
     }
 
     /**
