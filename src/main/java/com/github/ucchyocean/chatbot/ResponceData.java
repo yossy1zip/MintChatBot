@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 /**
  * レスポンス用のデータ管理オブジェクト
@@ -63,12 +63,12 @@ public class ResponceData {
      * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
      * 応答設定が無いなら、nullが返されます。
      * @param source チャット発言内容
-     * @param player チャット発言者
+     * @param sender チャット発言者
      * @return 応答内容
      */
-    public String getResponceIfMatch(String source, Player player) {
+    public String getResponceIfMatch(String source, CommandSender sender) {
 
-        String res = getRes(data, source, player, null);
+        String res = getRes(data, source, sender, null);
         if ( res != null ) {
             if ( res.equals(COMMAND_COOLDOWN) ) return null;
             if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
@@ -76,7 +76,7 @@ public class ResponceData {
             return res;
         }
 
-        res = getRes(userdata, source, player, null);
+        res = getRes(userdata, source, sender, null);
         if ( res == null ) return null;
         if ( res.equals(COMMAND_COOLDOWN) ) return null;
         if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
@@ -88,12 +88,12 @@ public class ResponceData {
      * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
      * 応答設定が無いなら、nullが返されます。
      * @param source チャット発言内容
-     * @param player チャット発言者名
+     * @param altName チャット発言者名
      * @return 応答内容
      */
-    public String getResponceIfMatch(String source, String player) {
+    public String getResponceIfMatch(String source, String altName) {
 
-        String res = getRes(data, source, null, player);
+        String res = getRes(data, source, null, altName);
         if ( res != null ) {
             if ( res.equals(COMMAND_COOLDOWN) ) return null;
             if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
@@ -101,7 +101,7 @@ public class ResponceData {
             return res;
         }
 
-        res = getRes(userdata, source, null, player);
+        res = getRes(userdata, source, null, altName);
         if ( res == null ) return null;
         if ( res.equals(COMMAND_COOLDOWN) ) return null;
         if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
@@ -109,12 +109,11 @@ public class ResponceData {
         return res;
     }
 
-
     /**
      * 指定されたチャット発言に対する応答設定がある場合、応答内容を返します。
      * 応答設定が無いなら、nullが返されます。
      */
-    private String getRes(LinkedHashMap<String, String> data, String source, Player player, String altName) {
+    private String getRes(LinkedHashMap<String, String> data, String source, CommandSender sender, String altName) {
 
         for ( String key : data.keySet() ) {
 
@@ -135,7 +134,7 @@ public class ResponceData {
                     return COMMAND_COOLDOWN;
                 }
 
-                responce = replacer.replace(responce, player, key, source, altName);
+                responce = replacer.replace(responce, sender, key, source, altName);
 
                 if ( isNotRepeat ) {
                     prevResponceKey = key;

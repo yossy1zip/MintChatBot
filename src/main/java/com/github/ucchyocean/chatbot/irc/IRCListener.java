@@ -175,7 +175,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
 
         // 必要に応じて、URL応答を返す
         if ( config.isGetURLTitle() && URLResponcer.containsURL(event.getMessage()) ) {
-            URLResponcer resp = new URLResponcer(event.getMessage(), null, event.getUser().getNick());
+            URLResponcer resp = new URLResponcer(event.getMessage(), event.getUser().getNick(), null);
             String responce = resp.getResponce();
             if ( responce != null ) {
                 plugin.say(responce);

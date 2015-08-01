@@ -70,7 +70,7 @@ public class TimerTask extends BukkitRunnable {
                         new BukkitRunnable() {
                             public void run() {
                                 MintChatBot.getInstance().say(
-                                        replacer.replace(responce, null, null, null, ""));
+                                        replacer.replace(responce, null, null, null, null));
                             }
                         };
                     notify.runTaskTimerAsynchronously(MintChatBot.getInstance(), ticks, ticks);
@@ -99,7 +99,7 @@ public class TimerTask extends BukkitRunnable {
             // 時報の処理
             String responce = signalData.getResponceIfMatch(time);
             MintChatBot.getInstance().say(
-                    replacer.replace(responce, null, null, null, ""));
+                    replacer.replace(responce, null, null, null, null));
         }
 
         if ( config.isAlermSignals() ) {
@@ -108,7 +108,7 @@ public class TimerTask extends BukkitRunnable {
             String datetime = date_format.format(date);
             String responce = signalData.getResponceIfMatch(datetime);
             MintChatBot.getInstance().say(
-                    replacer.replace(responce, null, null, null, ""));
+                    replacer.replace(responce, null, null, null, null));
         }
 
         lastSignal = time;

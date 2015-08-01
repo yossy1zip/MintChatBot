@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 /**
@@ -37,33 +36,31 @@ public class URLResponcer extends BukkitRunnable {
     }
 
     private String source;
-    private Player player;
-    private String altPlayerName;
+    private CommandSender sender;
+    private String altName;
     private CommandSender recipient;
 
     /**
      * コンストラクタ
      * @param source
-     * @param playerName
+     * @param sender
+     * @param recipient
      */
-    public URLResponcer(String source, CommandSender recipient, String altPlayerName) {
+    public URLResponcer(String source, CommandSender sender, CommandSender recipient) {
         this.source = source;
-        this.altPlayerName = altPlayerName;
-        this.player = null;
+        this.sender = sender;
         this.recipient = recipient;
     }
 
     /**
      * コンストラクタ
      * @param source
+     * @param sender
      * @param recipient
-     * @param player
-     * @param vaultchat
      */
-    public URLResponcer(String source, CommandSender recipient, Player player) {
+    public URLResponcer(String source, String altName, CommandSender recipient) {
         this.source = source;
-        this.altPlayerName = null;
-        this.player = player;
+        this.altName = altName;
         this.recipient = recipient;
     }
 
@@ -104,7 +101,11 @@ public class URLResponcer extends BukkitRunnable {
             return null;
         }
 
-        responce = (new KeywordReplacer()).replaceForTitle(responce, player, title, altPlayerName);
+        if ( sender != null ) {
+            responce = (new KeywordReplacer()).replaceForTitle(responce, sender, title);
+        } else {
+            responce = (new KeywordReplacer()).replaceForTitle(responce, altName, title);
+        }
 
         return Utility.replaceColorCode(responce);
     }

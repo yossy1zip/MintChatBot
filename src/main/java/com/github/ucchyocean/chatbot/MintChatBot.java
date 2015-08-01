@@ -12,7 +12,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -176,16 +175,9 @@ public class MintChatBot extends JavaPlugin {
                 }
                 String message = messageTemp.toString().trim();
 
-                Player player = sender instanceof Player ? (Player)sender : null;
-
                 if ( config.isResponceChat() ) {
                     // レスポンスデータに一致があるなら、レスポンスを返す
-                    final String responce;
-                    if ( player != null ) {
-                        responce = responceData.getResponceIfMatch(message, player);
-                    } else {
-                        responce = responceData.getResponceIfMatch(message, sender.getName());
-                    }
+                    final String responce = responceData.getResponceIfMatch(message, sender);
 
                     if ( responce != null ) {
 
@@ -203,12 +195,7 @@ public class MintChatBot extends JavaPlugin {
                 // URLマッチをする場合は、タスクを作成して応答させる。
                 if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-                    URLResponcer resp;
-                    if ( player != null ) {
-                        resp = new URLResponcer(message, sender, player);
-                    } else {
-                        resp = new URLResponcer(message, sender, sender.getName());
-                    }
+                    URLResponcer resp = new URLResponcer(message, sender, sender);
                     resp.runTaskLaterAsynchronously(this, config.getResponceDelayTicks());
 
                     return true;

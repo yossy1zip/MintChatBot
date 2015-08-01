@@ -115,7 +115,7 @@ public class DynmapBridge implements Listener {
         // URLマッチをする場合は、タスクを作成して応答させる。
         if ( config.isGetURLTitle() && URLResponcer.containsURL(message) ) {
 
-            final URLResponcer resp = new URLResponcer(message, null, displayName);
+            final URLResponcer resp = new URLResponcer(message, displayName, null);
 
             // 非同期で処理する
             new BukkitRunnable() {
