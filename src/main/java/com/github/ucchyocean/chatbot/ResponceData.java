@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.bukkit.command.CommandSender;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /**
  * レスポンス用のデータ管理オブジェクト
@@ -24,6 +25,7 @@ public class ResponceData {
     private static final String COMMAND_COOLDOWN = "@cooldown";
     private static final String COMMAND_LEARN = "@learn";
     private static final String COMMAND_FORGET = "@forget";
+    private static final String COMMAND_PRIVATE = "@private";
 
     private LinkedHashMap<String, String> data;
     private LinkedHashMap<String, String> userdata;
@@ -73,6 +75,7 @@ public class ResponceData {
             if ( res.equals(COMMAND_COOLDOWN) ) return null;
             if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
             if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+            if ( res.startsWith(COMMAND_PRIVATE) ) return tell(res, sender);
             return res;
         }
 
@@ -81,6 +84,7 @@ public class ResponceData {
         if ( res.equals(COMMAND_COOLDOWN) ) return null;
         if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
         if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+        if ( res.startsWith(COMMAND_PRIVATE) ) return tell(res, sender);
         return res;
     }
 
@@ -98,6 +102,7 @@ public class ResponceData {
             if ( res.equals(COMMAND_COOLDOWN) ) return null;
             if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
             if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+            if ( res.startsWith(COMMAND_PRIVATE) ) return null;
             return res;
         }
 
@@ -106,6 +111,7 @@ public class ResponceData {
         if ( res.equals(COMMAND_COOLDOWN) ) return null;
         if ( res.startsWith(COMMAND_LEARN) ) return learn(res);
         if ( res.startsWith(COMMAND_FORGET) ) return forget(res);
+        if ( res.startsWith(COMMAND_PRIVATE) ) return null;
         return res;
     }
 
@@ -120,8 +126,13 @@ public class ResponceData {
             String responce = data.get(key);
 
             boolean isNotRepeat = false;
+            boolean isPrivateResponce = false;
             if ( key.startsWith("@") ) {
                 isNotRepeat = true;
+                key = key.substring(1);
+            }
+            if ( key.startsWith(">") ) {
+                isPrivateResponce = true;
                 key = key.substring(1);
             }
 
@@ -139,6 +150,10 @@ public class ResponceData {
                 if ( isNotRepeat ) {
                     prevResponceKey = key;
                     prevResponceTime = System.currentTimeMillis();
+                }
+
+                if ( isPrivateResponce ) {
+                    responce = COMMAND_PRIVATE + responce;
                 }
 
                 return responce;
@@ -176,6 +191,21 @@ public class ResponceData {
                 .getResponceIfMatch("study_forget");
         if ( format == null ) return null;
         return format.replace("%key", key);
+    }
+
+    private String tell(String source, final CommandSender recipient) {
+
+        final String message = source.substring(COMMAND_PRIVATE.length());
+        MintChatBot parent = MintChatBot.getInstance();
+
+        // 数tick遅らせて送信する
+        new BukkitRunnable() {
+            public void run() {
+                MintChatBot.getInstance().tell(message, recipient);
+            }
+        }.runTaskLater(parent, parent.getCBConfig().getResponceDelayTicks());
+
+        return null; // 常にnullを返す
     }
 
     /**
