@@ -23,7 +23,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 public class URLResponcer extends BukkitRunnable {
 
     private static final String REGEX_URL = ".*(https?://[\\w/:%#\\$&\\?\\(\\)~\\.=\\+\\-]+).*";
-    private static final String REGEX_TITLE = ".*<title>([^<]*)</title>.*";
+    private static final String REGEX_TITLE = ".*<title[^>]*>([^<]*)</title>.*";
     private static final String REGEX_CHARSET = ".*charset=\"?([^\"]*)\".*";
     private static Pattern urlPattern;
     private static Pattern titlePattern;
@@ -253,5 +253,13 @@ public class URLResponcer extends BukkitRunnable {
                 MintChatBot.getInstance().tell(responce, recipient);
             }
         }
+    }
+
+    // デバッグ用エントリ
+    public static void main(String[] args) {
+        URLResponcer obj = new URLResponcer("", "", null);
+        System.out.println(obj.getURLTitle("https://github.com/ucchyocean/MintChatBot/issues/16"));
+        System.out.println(obj.getURLTitle("https://twitter.com/"));
+        System.out.println(obj.getURLTitle("https://gyazo.com/"));
     }
 }
