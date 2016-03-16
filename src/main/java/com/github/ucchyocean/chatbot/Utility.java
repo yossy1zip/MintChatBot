@@ -8,6 +8,7 @@ package com.github.ucchyocean.chatbot;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -61,7 +62,12 @@ public class Utility {
         ArrayList<String> contents = new ArrayList<String>();
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(file));
+            if ( Utility.isCB19orLater() ) {
+                reader = new BufferedReader(new InputStreamReader(
+                        new FileInputStream(file),"UTF-8"));
+            } else {
+                reader = new BufferedReader(new FileReader(file));
+            }
             String line;
             while ( (line = reader.readLine()) != null ) {
 
