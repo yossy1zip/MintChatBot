@@ -99,10 +99,21 @@ public class MintChatBot extends JavaPlugin {
      * Botがチャットに発言を行う。
      * @param message 発言内容
      */
-    public void say(String message) {
+    public void say(final String message) {
 
         if ( message == null ) return;
 
+        // 同期処理内で呼び出されたなら、非同期で呼び出しなおす。
+        if ( Bukkit.isPrimaryThread() ) {
+            new BukkitRunnable() {
+                public void run() {
+                    say(message);
+                }
+            }.runTaskAsynchronously(this);
+            return;
+        }
+
+        // ブロードキャストに発言する
         String base = config.getResponceFormat();
         String msg = base
                 .replace("%botName", config.getBotName())

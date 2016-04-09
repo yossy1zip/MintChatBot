@@ -14,6 +14,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.ConnectEvent;
@@ -31,7 +32,7 @@ import com.github.ucchyocean.chatbot.URLResponcer;
  * IRCBotのリスナー部分
  * @author ucchy
  */
-public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
+public class IRCListener extends ListenerAdapter implements Listener {
 
     private MintChatBot plugin;
     private IRCBotConfig config;
@@ -49,7 +50,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onConnect(org.pircbotx.hooks.events.ConnectEvent)
      */
     @Override
-    public void onConnect(ConnectEvent<PircBotX> event) throws Exception {
+    public void onConnect(ConnectEvent event) throws Exception {
         bot = event.getBot();
         String format = plugin.getMessages().getResponceIfMatch("irc_connect");
         if ( format == null ) return;
@@ -69,7 +70,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onDisconnect(org.pircbotx.hooks.events.DisconnectEvent)
      */
     @Override
-    public void onDisconnect(DisconnectEvent<PircBotX> event) throws Exception {
+    public void onDisconnect(DisconnectEvent event) throws Exception {
         String format = plugin.getMessages().getResponceIfMatch("irc_disconnect");
         if ( format == null ) return;
         String message = format
@@ -88,7 +89,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onJoin(org.pircbotx.hooks.events.JoinEvent)
      */
     @Override
-    public void onJoin(JoinEvent<PircBotX> event) throws Exception {
+    public void onJoin(JoinEvent event) throws Exception {
         if ( event.getUser().getNick().equals(bot.getNick()) ) return;
         String format = plugin.getMessages().getResponceIfMatch("irc_join");
         if ( format != null ) {
@@ -110,7 +111,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onKick(org.pircbotx.hooks.events.KickEvent)
      */
     @Override
-    public void onKick(KickEvent<PircBotX> event) throws Exception {
+    public void onKick(KickEvent event) throws Exception {
         String format = plugin.getMessages().getResponceIfMatch("irc_kick");
         if ( format == null ) return;
         String message = IRCColor.convRES2MC(format
@@ -124,7 +125,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onPart(org.pircbotx.hooks.events.PartEvent)
      */
     @Override
-    public void onPart(PartEvent<PircBotX> event) throws Exception {
+    public void onPart(PartEvent event) throws Exception {
         if ( event.getUser().getNick().equals(bot.getNick()) ) return;
         String format = plugin.getMessages().getResponceIfMatch("irc_part");
         if ( format == null ) return;
@@ -137,7 +138,7 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onQuit(org.pircbotx.hooks.events.QuitEvent)
      */
     @Override
-    public void onQuit(QuitEvent<PircBotX> event) throws Exception {
+    public void onQuit(QuitEvent event) throws Exception {
         if ( event.getUser().getNick().equals(bot.getNick()) ) return;
         String format = plugin.getMessages().getResponceIfMatch("irc_quit");
         if ( format == null ) return;
@@ -150,7 +151,8 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
      * @see org.pircbotx.hooks.ListenerAdapter#onMessage(org.pircbotx.hooks.events.MessageEvent)
      */
     @Override
-    public void onMessage(MessageEvent<PircBotX> event) throws Exception {
+    public void onMessage(MessageEvent event) throws Exception {
+
         if ( event.getUser().getNick().equals(bot.getNick()) ) return;
         String format = plugin.getMessages().getResponceIfMatch("irc_chat");
         if ( format != null ) {
@@ -186,52 +188,72 @@ public class IRCListener extends ListenerAdapter<PircBotX> implements Listener {
     // ========== Minecraft --> IRC ==========
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerChat(AsyncPlayerChatEvent event) {
+    public void onPlayerChat(final AsyncPlayerChatEvent event) {
         if ( bot == null ) return;
-        String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
+        final String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
         if ( format == null ) return;
-        String message = IRCColor.convRES2IRC(
-                format.replace("%name", event.getPlayer().getName()).replace("%message", event.getMessage()));
-        bot.sendIRC().message(config.getChannel(), message);
+        new BukkitRunnable() {
+            public void run() {
+                String message = IRCColor.convRES2IRC(
+                        format.replace("%name", event.getPlayer().getName()).replace("%message", event.getMessage()));
+                bot.sendIRC().message(config.getChannel(), message);
+            }
+        }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(final PlayerJoinEvent event) {
         if ( bot == null ) return;
-        String format = plugin.getMessages().getResponceIfMatch("minecraft_join");
+        final String format = plugin.getMessages().getResponceIfMatch("minecraft_join");
         if ( format == null ) return;
-        String message = IRCColor.convRES2IRC(format.replace("%name", event.getPlayer().getName()));
-        bot.sendIRC().message(config.getChannel(), message);
+        new BukkitRunnable() {
+            public void run() {
+                String message = IRCColor.convRES2IRC(format.replace("%name", event.getPlayer().getName()));
+                bot.sendIRC().message(config.getChannel(), message);
+            }
+        }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(final PlayerQuitEvent event) {
         if ( bot == null ) return;
-        String format = plugin.getMessages().getResponceIfMatch("minecraft_quit");
+        final String format = plugin.getMessages().getResponceIfMatch("minecraft_quit");
         if ( format == null ) return;
-        String message = IRCColor.convRES2IRC(format.replace("%name", event.getPlayer().getName()));
-        bot.sendIRC().message(config.getChannel(), message);
+        new BukkitRunnable() {
+            public void run() {
+                String message = IRCColor.convRES2IRC(format.replace("%name", event.getPlayer().getName()));
+                bot.sendIRC().message(config.getChannel(), message);
+            }
+        }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerKick(PlayerKickEvent event) {
+    public void onPlayerKick(final PlayerKickEvent event) {
         if ( bot == null ) return;
-        String format = plugin.getMessages().getResponceIfMatch("minecraft_kick");
+        final String format = plugin.getMessages().getResponceIfMatch("minecraft_kick");
         if ( format == null ) return;
-        String message = IRCColor.convRES2IRC(format
-                .replace("%name", event.getPlayer().getName())
-                .replace("%reason", event.getReason()));
-        bot.sendIRC().message(config.getChannel(), message);
+        new BukkitRunnable() {
+            public void run() {
+                String message = IRCColor.convRES2IRC(format
+                        .replace("%name", event.getPlayer().getName())
+                        .replace("%reason", event.getReason()));
+                bot.sendIRC().message(config.getChannel(), message);
+            }
+        }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     // ========== LunaChat --> IRC ==========
 
-    public void onLunaChat(String name, String message) {
+    public void onLunaChat(final String name, final String message) {
         if ( bot == null ) return;
-        String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
+        final String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
         if ( format == null ) return;
-        String msg = IRCColor.convRES2IRC(
-                format.replace("%name", name).replace("%message", message));
-        bot.sendIRC().message(config.getChannel(), msg);
+        new BukkitRunnable() {
+            public void run() {
+                String msg = IRCColor.convRES2IRC(
+                        format.replace("%name", name).replace("%message", message));
+                bot.sendIRC().message(config.getChannel(), msg);
+            }
+        }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 }

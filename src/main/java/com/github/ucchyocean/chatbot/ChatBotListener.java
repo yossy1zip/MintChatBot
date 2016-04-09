@@ -68,47 +68,53 @@ public class ChatBotListener implements Listener {
     @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
     public void onServerJoin(PlayerJoinEvent event) {
 
-        MintChatBot parent = MintChatBot.getInstance();
-        ChatBotConfig config = parent.getCBConfig();
+        final MintChatBot parent = MintChatBot.getInstance();
+        final ChatBotConfig config = parent.getCBConfig();
 
         // 無効なら何もしない
         if ( !config.isResponceJoinServer() ) {
             return;
         }
 
-        Player player = event.getPlayer();
-        Messages messages = parent.getMessages();
-        VaultChatBridge vaultchat = parent.getVaultChat();
+        final Player player = event.getPlayer();
+        final Messages messages = parent.getMessages();
+        final VaultChatBridge vaultchat = parent.getVaultChat();
 
-        String responce;
-
-        // レスポンスを取得
-        if ( !player.hasPlayedBefore() ) {
-            responce = messages.getResponceIfMatch("firstJoinResponce");
-        } else {
-            responce = messages.getResponceIfMatch("joinResponce");
-        }
-
-        if ( responce == null || responce.equals("") ) {
-            return;
-        }
-
-        responce = responce.replace("%player", player.getName());
-        if ( vaultchat != null ) {
-            responce = responce.replace("%prefix", vaultchat.getPlayerPrefix(player));
-            responce = responce.replace("%suffix", vaultchat.getPlayerSuffix(player));
-        } else {
-            responce = responce.replace("%prefix", "");
-            responce = responce.replace("%suffix", "");
-        }
-
-        // 数tick遅らせて送信する
-        final String msg = responce;
+        // 以降は非同期で処理する
         new BukkitRunnable() {
             public void run() {
-                MintChatBot.getInstance().say(msg);
+
+                String responce;
+
+                // レスポンスを取得
+                if ( !player.hasPlayedBefore() ) {
+                    responce = messages.getResponceIfMatch("firstJoinResponce");
+                } else {
+                    responce = messages.getResponceIfMatch("joinResponce");
+                }
+
+                if ( responce == null || responce.equals("") ) {
+                    return;
+                }
+
+                responce = responce.replace("%player", player.getName());
+                if ( vaultchat != null ) {
+                    responce = responce.replace("%prefix", vaultchat.getPlayerPrefix(player));
+                    responce = responce.replace("%suffix", vaultchat.getPlayerSuffix(player));
+                } else {
+                    responce = responce.replace("%prefix", "");
+                    responce = responce.replace("%suffix", "");
+                }
+
+                // 数tick遅らせて送信する
+                final String msg = responce;
+                new BukkitRunnable() {
+                    public void run() {
+                        MintChatBot.getInstance().say(msg);
+                    }
+                }.runTaskLater(parent, config.getResponceDelayTicks());
             }
-        }.runTaskLater(parent, config.getResponceDelayTicks());
+        }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
 }

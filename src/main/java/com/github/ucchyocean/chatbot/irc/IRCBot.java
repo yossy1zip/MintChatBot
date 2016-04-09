@@ -45,11 +45,11 @@ public class IRCBot extends BukkitRunnable {
 
         listener = new IRCListener(config);
 
-        Configuration.Builder<PircBotX> builder = new Configuration.Builder<PircBotX>();
+        Configuration.Builder builder = new Configuration.Builder();
         builder.setName(config.getNickname());
         builder.setLogin("MintChatBot");
         builder.setAutoNickChange(true);
-        builder.setServer(config.getServerHostname(), config.getServerPort());
+        builder.addServer(config.getServerHostname(), config.getServerPort());
         builder.addAutoJoinChannel(config.getChannel());
         builder.setVersion("MintChatBot");
         builder.setAutoReconnect(true);
