@@ -114,7 +114,7 @@ public class ChatBotListener implements Listener {
                     }
                 }.runTaskLater(parent, config.getResponceDelayTicks());
             }
-        }.runTaskAsynchronously(MintChatBot.getInstance());
+        }.runTaskLaterAsynchronously(MintChatBot.getInstance(), config.getResponceDelayTicks());
     }
 
 }
