@@ -88,7 +88,7 @@ public class DynmapBridge implements Listener {
 
         // IRCBotがいるなら、IRCにも流す
         if ( parent.getIRCBot() != null ) {
-            parent.getIRCBot().sendLunaChatMessage(displayName, message);
+            parent.getIRCBot().sendOtherChatMessage(displayName, message);
         }
 
         if ( parent.getCBConfig().isResponceChat() ) {

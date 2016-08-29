@@ -7,6 +7,7 @@ package com.github.ucchyocean.chatbot.irc;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -188,55 +189,57 @@ public class IRCListener extends ListenerAdapter implements Listener {
     // ========== Minecraft --> IRC ==========
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerChat(final AsyncPlayerChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
         if ( bot == null ) return;
-        final String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
+        String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
         if ( format == null ) return;
+        final String message = IRCColor.convRES2IRC(
+                replacePlayerKeyword(format, event.getPlayer(), event.getMessage()));
         new BukkitRunnable() {
             public void run() {
-                String message = IRCColor.convRES2IRC(
-                        format.replace("%name", event.getPlayer().getName()).replace("%message", event.getMessage()));
                 bot.sendIRC().message(config.getChannel(), message);
             }
         }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerJoin(final PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         if ( bot == null ) return;
-        final String format = plugin.getMessages().getResponceIfMatch("minecraft_join");
+        String format = plugin.getMessages().getResponceIfMatch("minecraft_join");
         if ( format == null ) return;
+        final String message = IRCColor.convRES2IRC(
+                replacePlayerKeyword(format, event.getPlayer(), ""));
         new BukkitRunnable() {
             public void run() {
-                String message = IRCColor.convRES2IRC(format.replace("%name", event.getPlayer().getName()));
                 bot.sendIRC().message(config.getChannel(), message);
             }
         }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerQuit(final PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         if ( bot == null ) return;
-        final String format = plugin.getMessages().getResponceIfMatch("minecraft_quit");
+        String format = plugin.getMessages().getResponceIfMatch("minecraft_quit");
         if ( format == null ) return;
+        final String message = IRCColor.convRES2IRC(
+                replacePlayerKeyword(format, event.getPlayer(), ""));
         new BukkitRunnable() {
             public void run() {
-                String message = IRCColor.convRES2IRC(format.replace("%name", event.getPlayer().getName()));
                 bot.sendIRC().message(config.getChannel(), message);
             }
         }.runTaskAsynchronously(MintChatBot.getInstance());
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerKick(final PlayerKickEvent event) {
+    public void onPlayerKick(PlayerKickEvent event) {
         if ( bot == null ) return;
-        final String format = plugin.getMessages().getResponceIfMatch("minecraft_kick");
+        String format = plugin.getMessages().getResponceIfMatch("minecraft_kick");
         if ( format == null ) return;
+        final String message = IRCColor.convRES2IRC(
+                replacePlayerKeyword(format, event.getPlayer(), ""))
+                .replace("%reason", event.getReason());
         new BukkitRunnable() {
             public void run() {
-                String message = IRCColor.convRES2IRC(format
-                        .replace("%name", event.getPlayer().getName())
-                        .replace("%reason", event.getReason()));
                 bot.sendIRC().message(config.getChannel(), message);
             }
         }.runTaskAsynchronously(MintChatBot.getInstance());
@@ -244,16 +247,50 @@ public class IRCListener extends ListenerAdapter implements Listener {
 
     // ========== LunaChat --> IRC ==========
 
-    public void onLunaChat(final String name, final String message) {
+    public void onLunaChat(Player player, String msg) {
         if ( bot == null ) return;
-        final String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
+        String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
         if ( format == null ) return;
+        final String message = IRCColor.convRES2IRC(
+                replacePlayerKeyword(format, player, msg));
         new BukkitRunnable() {
             public void run() {
-                String msg = IRCColor.convRES2IRC(
-                        format.replace("%name", name).replace("%message", message));
-                bot.sendIRC().message(config.getChannel(), msg);
+                bot.sendIRC().message(config.getChannel(), message);
             }
         }.runTaskAsynchronously(MintChatBot.getInstance());
+    }
+
+    // ========== Other --> IRC ==========
+
+    public void onOtherChat(String name, String msg) {
+        if ( bot == null ) return;
+        String format = plugin.getMessages().getResponceIfMatch("minecraft_chat");
+        if ( format == null ) return;
+        final String message = format.replace("%name", name).replace("%message", msg);
+        new BukkitRunnable() {
+            public void run() {
+                bot.sendIRC().message(config.getChannel(), message);
+            }
+        }.runTaskAsynchronously(MintChatBot.getInstance());
+    }
+
+    private String replacePlayerKeyword(String original, Player player, String message) {
+
+        String name = player.getDisplayName();
+        String prefix, suffix;
+        if ( plugin.getVaultChat() != null ) {
+            prefix = plugin.getVaultChat().getPlayerPrefix(player);
+            suffix = plugin.getVaultChat().getPlayerSuffix(player);
+        } else {
+            prefix = "";
+            suffix = "";
+        }
+
+        String str = original;
+        str = str.replace("%name", name);
+        str = str.replace("%message", message);
+        str = str.replace("%prefix", prefix);
+        str = str.replace("%suffix", suffix);
+        return str;
     }
 }

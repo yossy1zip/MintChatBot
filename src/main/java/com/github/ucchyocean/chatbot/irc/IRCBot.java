@@ -7,6 +7,7 @@ package com.github.ucchyocean.chatbot.irc;
 
 import java.io.IOException;
 
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.pircbotx.Channel;
 import org.pircbotx.Configuration;
@@ -97,11 +98,20 @@ public class IRCBot extends BukkitRunnable {
 
     /**
      * LunaChatからIRCにメッセージを送信する。
+     * @param player
+     * @param message
+     */
+    public void sendLunaChatMessage(Player player, String message) {
+        listener.onLunaChat(player, message);
+    }
+
+    /**
+     * 他のチャットツールからIRCにメッセージを送信する。
      * @param name
      * @param message
      */
-    public void sendLunaChatMessage(String name, String message) {
-        listener.onLunaChat(name, message);
+    public void sendOtherChatMessage(String name, String message) {
+        listener.onOtherChat(name, message);
     }
 
     /**

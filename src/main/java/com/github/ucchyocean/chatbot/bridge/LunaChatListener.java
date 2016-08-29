@@ -69,7 +69,11 @@ public class LunaChatListener implements Listener {
 
         // IRCBotがいるなら、IRCにも流す
         if ( parent.getIRCBot() != null ) {
-            parent.getIRCBot().sendLunaChatMessage(displayName, message);
+            if ( player != null ) {
+                parent.getIRCBot().sendLunaChatMessage(player, message);
+            } else {
+                parent.getIRCBot().sendOtherChatMessage(displayName, message);
+            }
         }
 
         if ( parent.getCBConfig().isResponceChat() ) {

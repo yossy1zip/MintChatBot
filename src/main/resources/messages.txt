@@ -33,7 +33,7 @@ getURLTitleNotFound: %playerさんの貼ったURLは、接続できませんで�
 # 空文字列を設定、または、コメントアウトすると、応答を無効化できます。
 
 # IRC側に流れるメッセージです。
-minecraft_chat: <%name> %message
+minecraft_chat: %prefix<%name>%suffix %message
 minecraft_join: &6* %name さんがサーバーに参加しました。
 minecraft_quit: &6* %name さんがサーバーから退出しました。
 minecraft_kick: &4* %name さんがサーバーからキックされました。&r(%reason&r)
