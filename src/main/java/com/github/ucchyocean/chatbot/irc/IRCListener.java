@@ -276,7 +276,6 @@ public class IRCListener extends ListenerAdapter implements Listener {
 
     private String replacePlayerKeyword(String original, Player player, String message) {
 
-        String name = player.getDisplayName();
         String prefix, suffix;
         if ( plugin.getVaultChat() != null ) {
             prefix = plugin.getVaultChat().getPlayerPrefix(player);
@@ -287,7 +286,8 @@ public class IRCListener extends ListenerAdapter implements Listener {
         }
 
         String str = original;
-        str = str.replace("%name", name);
+        str = str.replace("%player", player.getName());
+        str = str.replace("%name", player.getDisplayName());
         str = str.replace("%message", message);
         str = str.replace("%prefix", prefix);
         str = str.replace("%suffix", suffix);
