@@ -28,12 +28,12 @@ public class KeywordReplacer {
 
     private static final String RESPONCE_TIME = "HH:mm:ss";
     private static final String RESPONCE_DATE = "yyyy/MM/dd E";
-    private static final String REGEX_PATTERN_COMMAND =
-            "(@command|@command_bypass)\\[([^\\]]+)\\]";
+    private static final String REGEX_PATTERN_COMMAND_START =
+            "(@command|@command_bypass)\\[";
 
     private SimpleDateFormat time_format;
     private SimpleDateFormat date_format;
-    private Pattern pattern_command;
+    private Pattern pattern_command_start;
 
     /**
      * コンストラクタ
@@ -41,7 +41,7 @@ public class KeywordReplacer {
     protected KeywordReplacer() {
         time_format = new SimpleDateFormat(RESPONCE_TIME);
         date_format = new SimpleDateFormat(RESPONCE_DATE, Locale.JAPAN);
-        pattern_command = Pattern.compile(REGEX_PATTERN_COMMAND);
+        pattern_command_start = Pattern.compile(REGEX_PATTERN_COMMAND_START);
     }
 
     /**
@@ -344,12 +344,15 @@ public class KeywordReplacer {
      */
     private String runCommands(String source, final CommandSender sender) {
 
-        Matcher matcher = pattern_command.matcher(source);
+        Matcher matcher = pattern_command_start.matcher(source);
         while ( matcher.find() ) {
 
             final boolean isBypass = matcher.group(1).equals("@command_bypass");
-            final String command = matcher.group(2).startsWith("/") ?
-                    matcher.group(2).substring(1) : matcher.group(2);
+            String commandOrg = getCommandFromSourceString(source, matcher.end());
+            if ( commandOrg == null ) break;
+            final String command = commandOrg.startsWith("/") ?
+                    commandOrg.substring(1) : commandOrg;
+
             new BukkitRunnable() {
                 public void run() {
                     if ( !isBypass && sender != null ) {
@@ -361,9 +364,34 @@ public class KeywordReplacer {
             }.runTaskLater(MintChatBot.getInstance(),
                     MintChatBot.getInstance().getCBConfig().getResponceDelayTicks() + 2);
 
-            source = source.replace(matcher.group(0), "");
-            matcher = pattern_command.matcher(source);
+            source = source.replace(matcher.group(0) + commandOrg + "]", "");
+            matcher = pattern_command_start.matcher(source);
         }
         return source;
+    }
+
+    /**
+     * 文字列内のコマンド部分を取り出す。
+     * @param source 文字列
+     * @param offset コマンドの開始オフセット
+     * @return 切り出したコマンド
+     */
+    private String getCommandFromSourceString(String source, int offset) {
+
+        int level = 0;
+        int cursole = offset;
+        while ( cursole < source.length() ) {
+            char c = source.charAt(cursole);
+            if ( c == '[' ) {
+                level++;
+            } else if ( c == ']' ) {
+                level--;
+                if ( level <= -1 ) {
+                    return source.substring(offset, cursole);
+                }
+            }
+            cursole++;
+        }
+        return null;
     }
 }
