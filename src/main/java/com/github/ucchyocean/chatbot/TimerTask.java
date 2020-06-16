@@ -118,6 +118,7 @@ public class TimerTask extends BukkitRunnable {
      * 全ての繰り返し通知をキャンセルする
      */
     protected void cancelAllNotifies() {
+        if ( notifies == null ) return;
         for ( BukkitRunnable r : notifies ) {
             r.cancel();
         }

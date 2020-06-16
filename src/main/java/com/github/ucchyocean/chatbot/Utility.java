@@ -9,17 +9,12 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -60,14 +55,10 @@ public class Utility {
 
         // ファイルの内容を読み出す
         ArrayList<String> contents = new ArrayList<String>();
-        BufferedReader reader = null;
-        try {
-            if ( Utility.isCB19orLater() ) {
-                reader = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file),"UTF-8"));
-            } else {
-                reader = new BufferedReader(new FileReader(file));
-            }
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file), "UTF-8"))) {
+
             String line;
             while ( (line = reader.readLine()) != null ) {
 
@@ -81,14 +72,6 @@ public class Utility {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if ( reader != null ) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
         }
 
         // 内容の解析
@@ -119,23 +102,13 @@ public class Utility {
         }
 
         // 書き込み
-        BufferedWriter writer = null;
-        try {
-            writer = new BufferedWriter(new FileWriter(file));
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for ( String key : data.keySet() ) {
                 writer.write(key + " : " + data.get(key));
                 writer.newLine();
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if ( writer != null ) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
         }
     }
 
@@ -149,81 +122,28 @@ public class Utility {
     public static void copyFileFromJar(
             File jarFile, File targetFile, String sourceFilePath) {
 
-        JarFile jar = null;
-        InputStream is = null;
-        FileOutputStream fos = null;
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-
         File parent = targetFile.getParentFile();
         if ( !parent.exists() ) {
             parent.mkdirs();
         }
 
-        try {
-            jar = new JarFile(jarFile);
+        try (JarFile jar = new JarFile(jarFile)) {
+
             ZipEntry zipEntry = jar.getEntry(sourceFilePath);
-            is = jar.getInputStream(zipEntry);
 
-            fos = new FileOutputStream(targetFile);
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(jar.getInputStream(zipEntry), "UTF-8"));
+                BufferedWriter writer = new BufferedWriter(
+                        new OutputStreamWriter(new FileOutputStream(targetFile), "UTF-8"))) {
 
-            reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-
-            // CB190以降は、書き出すファイルエンコードにUTF-8を強制する。
-            if ( isCB19orLater() ) {
-                writer = new BufferedWriter(new OutputStreamWriter(fos, "UTF-8"));
-            } else {
-                writer = new BufferedWriter(new OutputStreamWriter(fos));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    writer.write(line);
+                    writer.newLine();
+                }
             }
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                writer.write(line);
-                writer.newLine();
-            }
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if ( jar != null ) {
-                try {
-                    jar.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
-            if ( writer != null ) {
-                try {
-                    writer.flush();
-                    writer.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
-            if ( reader != null ) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
-            if ( fos != null ) {
-                try {
-                    fos.flush();
-                    fos.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
-            if ( is != null ) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
         }
     }
 
@@ -236,35 +156,21 @@ public class Utility {
     public static ArrayList<String> getContentsFromJar(File file, String name) {
 
         ArrayList<String> contents = new ArrayList<String>();
-        JarFile jarFile = null;
-        InputStream inputStream = null;
-        try {
-            jarFile = new JarFile(file);
+
+        try (JarFile jarFile = new JarFile(file)) {
+
             ZipEntry zipEntry = jarFile.getEntry(name);
-            inputStream = jarFile.getInputStream(zipEntry);
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            String line;
-            while ( (line = reader.readLine()) != null ) {
-                contents.add(line);
+
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(jarFile.getInputStream(zipEntry), "UTF-8"))) {
+
+                String line;
+                while ( (line = reader.readLine()) != null ) {
+                    contents.add(line);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if ( jarFile != null ) {
-                try {
-                    jarFile.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
-            if ( inputStream != null ) {
-                try {
-                    inputStream.close();
-                } catch (IOException e) {
-                    // do nothing.
-                }
-            }
         }
 
         return contents;
@@ -303,14 +209,6 @@ public class Utility {
 
         char code = colorCode.charAt(1);
         return ChatColor.getByChar(code);
-    }
-
-    /**
-     * 現在動作中のCraftBukkitが、v1.9 以上かどうかを確認する
-     * @return v1.9以上ならtrue、そうでないならfalse
-     */
-    public static boolean isCB19orLater() {
-        return isUpperVersion(Bukkit.getBukkitVersion(), "1.9");
     }
 
     /**
@@ -364,29 +262,7 @@ public class Utility {
      * 現在接続中のプレイヤーを全て取得する
      * @return 接続中の全てのプレイヤー
      */
-    @SuppressWarnings("unchecked")
     public static ArrayList<Player> getOnlinePlayers() {
-        // CB179以前と、CB1710以降で戻り値が異なるため、
-        // リフレクションを使って互換性を（無理やり）保つ。
-        try {
-            if (Bukkit.class.getMethod("getOnlinePlayers", new Class<?>[0]).getReturnType() == Collection.class) {
-                Collection<?> temp =
-                        ((Collection<?>) Bukkit.class.getMethod("getOnlinePlayers", new Class<?>[0])
-                                .invoke(null, new Object[0]));
-                return new ArrayList<Player>((Collection<? extends Player>) temp);
-            } else {
-                Player[] temp =
-                        ((Player[]) Bukkit.class.getMethod("getOnlinePlayers", new Class<?>[0])
-                                .invoke(null, new Object[0]));
-                ArrayList<Player> players = new ArrayList<Player>();
-                for (Player t : temp) {
-                    players.add(t);
-                }
-                return players;
-            }
-        } catch (NoSuchMethodException ex) {} // never happen
-        catch (InvocationTargetException ex) {} // never happen
-        catch (IllegalAccessException ex) {} // never happen
-        return new ArrayList<Player>();
+        return new ArrayList<Player>(Bukkit.getOnlinePlayers());
     }
 }
