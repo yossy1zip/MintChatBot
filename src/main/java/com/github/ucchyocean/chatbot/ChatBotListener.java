@@ -25,7 +25,7 @@ public class ChatBotListener implements Listener {
      * チャット発言がされたときに呼び出されるメソッドです。
      * @param event
      */
-    @EventHandler(priority=EventPriority.NORMAL, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
     public void onChat(AsyncPlayerChatEvent event) {
 
         String message = event.getMessage();
@@ -65,7 +65,7 @@ public class ChatBotListener implements Listener {
      * プレイヤーがサーバーに参加したときに呼び出されるメソッドです。
      * @param event
      */
-    @EventHandler(priority=EventPriority.NORMAL, ignoreCancelled=true)
+    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
     public void onServerJoin(PlayerJoinEvent event) {
 
         final MintChatBot parent = MintChatBot.getInstance();

@@ -58,7 +58,9 @@ public class LunaChatListener implements Listener {
         String displayName = event.getDisplayName();
 
         // Bot自身の発言なら無視する
-        if ( displayName.startsWith(config.getBotName() + "@") ) {
+        if ( displayName.startsWith(config.getBotName() + "@") // LunaChat v2
+                || displayName.equals(config.getBotName()) // Lunachat v3
+                ) {
             return;
         }
 
