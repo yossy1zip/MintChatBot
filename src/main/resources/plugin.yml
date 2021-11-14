@@ -3,7 +3,7 @@ main: ${project.groupId}.chatbot.MintChatBot
 version: ${project.version}
 author: ucchy
 description: ${project.description}
-softdepend: [Vault, LunaChat]
+softdepend: [Vault, LunaChat, SuperVanish]
 
 commands:
   chatbot:

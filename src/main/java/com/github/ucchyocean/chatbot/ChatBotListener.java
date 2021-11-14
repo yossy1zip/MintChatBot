@@ -12,6 +12,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
+import de.myzelyam.api.vanish.VanishAPI;
 
 import com.github.ucchyocean.chatbot.bridge.VaultChatBridge;
 
@@ -77,6 +78,11 @@ public class ChatBotListener implements Listener {
         }
 
         final Player player = event.getPlayer();
+
+        if ( VanishAPI.isInvisible(player) ) {
+            return;
+        }
+
         final Messages messages = parent.getMessages();
         final VaultChatBridge vaultchat = parent.getVaultChat();
 
